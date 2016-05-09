@@ -16,12 +16,22 @@ import {
 } from 'react-native';
 import React from 'react';
 import Button from 'react-native-button';
+import AppAndroid from './AppAndroid';
 import {
   SegmentedControls
-} from 'react-native-radio-buttons'; 
+} from 'react-native-radio-buttons';
+import Sound from 'react-native-sound'; 
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
+var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) => {
+  if (error) {
+    console.log('failed to load the sound', error);
+  } else {
+    console.log('Sound loaded');
+  }
+});
+alertSound.setNumberOfLoops(-1);
 
 let distance = function(currentLat, currentLong, stationLat, stationLong) {
   var radlat1 = Math.PI * currentLat/180
@@ -65,6 +75,13 @@ class CalTrainApp extends Component {
     let dist = distance(currentLat, currentLong, this.state.stationLat, this.state.stationLong);
     if (dist <= 0.5) {
       console.log("you are so close!");
+      alertSound.play((success) => {
+        if (success) {
+          console.log('successfully finished playing');
+        } else {
+          console.log('playback failed due to audio decoding errors');
+        }
+      });
       Vibration.vibrate(
         [0, 500, 200, 500], true),
       Alert.alert(
@@ -79,6 +96,7 @@ class CalTrainApp extends Component {
 
   _onAlertPressed() {
     Vibration.vibrate(),
+    alertSound.stop(),
     console.log("OK pressed!")
 
   }
@@ -89,13 +107,7 @@ class CalTrainApp extends Component {
     });
   }
 
-  _renderList() {
-    const options = [
-      "Option 1",
-      "Option 2"
-    ];
-
-    function setLatAndLong(station){
+  setLatAndLong(station){
       this.setState({
         station
       });
@@ -104,6 +116,7 @@ class CalTrainApp extends Component {
         if(station === stops[i].name){
           let stationLat = stops[i].lat;
           let stationLong = stops[i].long;
+          AppAndroid.setStation(stationLat.toString(), stationLong.toString());
           this.setState({stationLong, stationLat});
           setTimeout(() => {
             this.setState({
@@ -113,6 +126,8 @@ class CalTrainApp extends Component {
         }
       }
     }
+
+  _renderList() {
     if (this.state.showList) {
       return (
           <ScrollView>
@@ -122,7 +137,7 @@ class CalTrainApp extends Component {
                   return stop.name
                 }) 
               }
-              onSelection={ setLatAndLong.bind(this) }
+              onSelection={ this.setLatAndLong.bind(this) }
               selectedOption={ this.state.station }
               direction={ 'column' }
             />

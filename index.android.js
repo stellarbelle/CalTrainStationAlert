@@ -9,10 +9,9 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableHighlight,
   DeviceEventEmitter,
   Alert,
-  Vibration
+  Vibration,
 } from 'react-native';
 import React from 'react';
 import Button from 'react-native-button';
@@ -49,30 +48,33 @@ let distance = function(currentLat, currentLong, stationLat, stationLong) {
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
-    this.watchID = null;
+    // this.watchID = null;
     this.state = {
       station: '',
       allStops: '',
-      lastPosition: 'unknown',
-      stationLat: '',
-      stationLong: '',
-      currentLong: '',
-      currentLat: '',
+      // lastPosition: 'unknown',
+      // stationLat: '',
+      // stationLong: '',
+      // currentLong: '',
+      // currentLat: '',
       showList: false,
+      distance: ''
     };
   }
 
-  componentDidMount() {
-    this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
-  }
+  // componentDidMount() {
+  //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
+  // }
 
-  onWatchPosition(position) {
-    let lastPosition = position;
-    let currentLong = position.coords.longitude;
-    let currentLat = position.coords.latitude;
-    this.setState({lastPosition, currentLat, currentLong});
-    console.log("currentLat: ", this.state.currentLat, " currentLong: ", this.state.currentLong, " stationLong: ", this.state.stationLong, " stationLat: ", this.state.stationLat);
-    let dist = distance(currentLat, currentLong, this.state.stationLat, this.state.stationLong);
+  onWatchPosition() {
+    // let lastPosition = position;
+    // let currentLong = position.coords.longitude;
+    // let currentLat = position.coords.latitude;
+    // this.setState({lastPosition, currentLat, currentLong});
+    // console.log("currentLat: ", this.state.currentLat, " currentLong: ", this.state.currentLong, " stationLong: ", this.state.stationLong, " stationLat: ", this.state.stationLat);
+    // let dist = distance(currentLat, currentLong, this.state.stationLat, this.state.stationLong);
+    console.log("dist: ", this.state.distance);
+    let dist = this.state.distance;
     if (dist <= 0.5) {
       console.log("you are so close!");
       alertSound.play((success) => {
@@ -108,24 +110,32 @@ class CalTrainApp extends Component {
   }
 
   setLatAndLong(station){
-      this.setState({
-        station
-      });
-      let stops = this.state.allStops.stops
-      for(i in stops) {
-        if(station === stops[i].name){
-          let stationLat = stops[i].lat;
-          let stationLong = stops[i].long;
-          AppAndroid.setStation(stationLat.toString(), stationLong.toString());
-          this.setState({stationLong, stationLat});
-          setTimeout(() => {
-            this.setState({
-              showList: false
-            }); 
-          }, 500);
-        }
+    this.setState({
+      station
+    });
+    let stops = this.state.allStops.stops
+    for(i in stops) {
+      if(station === stops[i].name){
+        let stationLat = stops[i].lat;
+        let stationLong = stops[i].long;
+        AppAndroid.setStation(stationLat.toString(), stationLong.toString(), this.onLocationUpdated.bind(this));
+        // this.setState({stationLong, stationLat});
+        setTimeout(() => {
+          this.setState({
+            showList: false
+          }); 
+        }, 500);
       }
     }
+  }
+
+  onLocationUpdated(data) {
+    this.setState({
+      distance: data
+    });
+    console.log("I am updated! ", data);
+    this.onWatchPosition.bind(this)
+  }
 
   _renderList() {
     if (this.state.showList) {
@@ -146,11 +156,19 @@ class CalTrainApp extends Component {
     } else {
       return null;
     }
+  }
+
+  _renderDistance() {
+    if(this.state.distance) {
+      return (
+        <Text>{'\n'} You are { this.state.distance } miles away.</Text>
+      )
+    }
   } 
 
-  componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.watchID);
-  }
+  // componentWillUnmount() {
+  //   navigator.geolocation.clearWatch(this.watchID);
+  // }
 
   componentWillMount() {
     this.setState({
@@ -164,7 +182,9 @@ class CalTrainApp extends Component {
         <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
         {this._renderList()}
         <Text style={styles.station}>{'\n' + this.state.station}</Text>
-    </View>)
+        {this._renderDistance()}
+      </View>
+    )
   }
 }
 

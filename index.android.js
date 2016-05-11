@@ -1,6 +1,7 @@
 //react-native run-android
 //adb logcat *:S ReactNative:V ReactNativeJS:V
 //adb reverse tcp:8081 tcp:8081
+//<Text>{this.state.eventSwitchRegressionIsOn ? 'On' : 'Off'}</Text>
 
 import {
   AppRegistry,
@@ -12,6 +13,7 @@ import {
   DeviceEventEmitter,
   Alert,
   Vibration,
+  Switch
 } from 'react-native';
 import React from 'react';
 import Button from 'react-native-button';
@@ -20,6 +22,7 @@ import {
   SegmentedControls
 } from 'react-native-radio-buttons';
 import Sound from 'react-native-sound'; 
+import SettingsList from 'react-native-settings-list';
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
@@ -58,13 +61,23 @@ class CalTrainApp extends Component {
       // currentLong: '',
       // currentLat: '',
       showList: false,
-      distance: ''
+      distance: '',
+      audioSwitchValue: true,
+      vibrateSwitchValue: true
     };
   }
 
-  // componentDidMount() {
-  //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
-  // }
+  onAudioValueChange() {
+    this.setState({
+      audioSwitchValue: !this.state.audioSwitchValue
+    }); 
+  }
+
+  onVibrateValueChange() {
+    this.setState({
+      vibrateSwitchValue: !this.state.vibrateSwitchValue
+    }); 
+  }
 
   onWatchPosition() {
     // let lastPosition = position;
@@ -77,36 +90,45 @@ class CalTrainApp extends Component {
     let dist = this.state.distance;
     if (dist <= 0.5) {
       console.log("you are so close!");
-      alertSound.play((success) => {
-        if (success) {
-          console.log('successfully finished playing');
-        } else {
-          console.log('playback failed due to audio decoding errors');
-        }
-      });
-      Vibration.vibrate(
-        [0, 500, 200, 500], true),
+      if(this.state.audioSwitchValue) {
+        alertSound.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+      if (this.state.vibrateSwitchValue) {
+        Vibration.vibrate(
+        [0, 500, 200, 500], true)
+      }
       Alert.alert(
         'Alert',
         alertMessage,
         [
-          {text: 'OK', onPress: this._onAlertPressed.bind(this)}
+          {text: 'OK', onPress: this.onAlertPressed.bind(this)}
         ]
       )
     }
   }
 
-  _onAlertPressed() {
-    Vibration.vibrate(),
-    alertSound.stop(),
+  onAlertPressed() {
+    if(this.state.vibrateSwitchValue) {
+      Vibration.cancel()
+    }
+    if(this.state.audioSwitchValue) {
+      alertSound.stop()
+    }
     console.log("OK pressed!")
-
   }
 
-  toggleList() {
+  onLocationUpdated(data) {
     this.setState({
-      showList: !this.state.showList
+      distance: data
     });
+    console.log("I am updated! ", data);
+    this.onWatchPosition.bind(this)
   }
 
   setLatAndLong(station){
@@ -124,51 +146,10 @@ class CalTrainApp extends Component {
           this.setState({
             showList: false
           }); 
-        }, 500);
+        }, 600);
       }
     }
   }
-
-  onLocationUpdated(data) {
-    this.setState({
-      distance: data
-    });
-    console.log("I am updated! ", data);
-    this.onWatchPosition.bind(this)
-  }
-
-  _renderList() {
-    if (this.state.showList) {
-      return (
-          <ScrollView>
-            <SegmentedControls
-              options={
-                this.state.allStops.stops.map(function(stop) {
-                  return stop.name
-                }) 
-              }
-              onSelection={ this.setLatAndLong.bind(this) }
-              selectedOption={ this.state.station }
-              direction={ 'column' }
-            />
-          </ScrollView>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  _renderDistance() {
-    if(this.state.distance) {
-      return (
-        <Text>{'\n'} You are { this.state.distance } miles away.</Text>
-      )
-    }
-  } 
-
-  // componentWillUnmount() {
-  //   navigator.geolocation.clearWatch(this.watchID);
-  // }
 
   componentWillMount() {
     this.setState({
@@ -176,13 +157,91 @@ class CalTrainApp extends Component {
     })
   }
 
+  // componentDidMount() {
+  //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
+  // }
+
+  // componentWillUnmount() {
+  //   navigator.geolocation.clearWatch(this.watchID);
+  // }
+
+  toggleList() {
+    this.setState({
+      station: '',
+      showList: !this.state.showList,
+    });
+  }
+
+  _renderSwitch() {
+    if (!this.state.showList) {
+      return (
+        <View>
+          <View style={styles.switch} >
+            <Text style={styles.label}>Vibrate</Text>
+            <Switch
+              onValueChange={this.onVibrateValueChange.bind(this)}
+              style={{marginBottom: 10}}
+              value={this.state.vibrateSwitchValue} />
+              <Text style={styles.label}>{this.state.vibrateSwitchValue ? 'On' : 'Off'}{'\n'}</Text>
+          </View>
+          <View style={styles.switch}>
+            <Text style={styles.label}>Audio</Text>
+            <Switch
+              onValueChange={this.onAudioValueChange.bind(this)}
+              style={{marginBottom: 10}}
+              value={this.state.audioSwitchValue} />
+            <Text style={styles.label}>{this.state.audioSwitchValue ? 'On' : 'Off'}</Text>
+          </View>
+        </View>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  _renderList() {
+    if (this.state.showList) {
+      return (
+        <ScrollView>
+          <SegmentedControls
+            options={
+              this.state.allStops.stops.map(function(stop) {
+                return stop.name
+              }) 
+            }
+            tint={'steelblue'}
+            onSelection={ this.setLatAndLong.bind(this) }
+            selectedOption={ this.state.station }
+            direction={ 'column' }
+          />
+        </ScrollView>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  _renderStation() {
+    if(this.state.station && !this.state.showList) {
+      return (
+        <View style={styles.info}>
+          <Text style={{fontSize: 16}}>{'\n\n'}Your station is:</Text>
+          <Text style={styles.station}>{this.state.station}</Text>
+          <Text>You are { this.state.distance } miles away.</Text>
+        </View>
+      );
+    }
+  } 
+
   render() {
     return (
       <View style={styles.container}>
+        {this._renderSwitch()}
+        <Text>{'\n\n\n'}</Text>
         <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
+        <Text>{'\n'}</Text>
         {this._renderList()}
-        <Text style={styles.station}>{'\n' + this.state.station}</Text>
-        {this._renderDistance()}
+        {this._renderStation()}
       </View>
     )
   }
@@ -206,7 +265,21 @@ const styles = StyleSheet.create({
   station: {
     fontSize: 18,
     color: 'steelblue',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 10
+  },
+  switch: {
+    flexDirection: 'row',
+  },
+  label: {
+    textAlign: 'center',
+    textAlignVertical: 'auto',
+    marginTop: 2
+  },
+  info: {
+    alignItems: 'center'
   }
 });
 

@@ -1,6 +1,7 @@
 package com.caltrainapp;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -24,11 +25,13 @@ public class AppModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setStation(String stationLat, String stationLong, Callback callback) {
         String data = "caltrain://" + stationLat + "/" + stationLong;
-        Intent mServiceIntent = new Intent(this.getCurrentActivity(), MonitoringService.class);
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.setData(Uri.parse(data));
-        getCurrentActivity().startService(mServiceIntent);
+        activity.startService(mServiceIntent);
+
         Log.i("TestingModule", data);
-        callback.invoke(3);
+        activity.setCallback(callback);
     }
 
 //    protected void createLocationRequest() {

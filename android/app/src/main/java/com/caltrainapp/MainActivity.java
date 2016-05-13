@@ -1,7 +1,16 @@
 package com.caltrainapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.util.Log;
+
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.shell.MainReactPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 
@@ -39,5 +48,28 @@ public class MainActivity extends ReactActivity {
             new RNSoundPackage(),
             new AppReactPackage()
         );
+    }
+
+    public void setCallback(Callback callback) {
+        callback.invoke(3);
+    }
+
+    private BroadcastReceiver receiver;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("SOME_ACTION");
+        filter.addAction("SOME_OTHER_ACTION");
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //do something based on the intent's action
+                Log.i("TestingActivity", String.valueOf(intent.getData()));
+            }
+        };
+        registerReceiver(receiver, filter);
     }
 }

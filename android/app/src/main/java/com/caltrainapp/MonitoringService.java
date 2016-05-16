@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -78,7 +79,14 @@ public class MonitoringService extends IntentService {
         String[] arr = path.split("/", 2);
         String stationLat = arr[0];
         String stationLong = arr[1];
+
+        Log.i(TAG, "onHandleIntent");
         Log.i(TAG, String.valueOf(intent.getData()));
+
+        Intent RTReturn = new Intent();
+        RTReturn.setAction("my first intent");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(RTReturn);
+//        sendBroadcast(RTReturn);
     }
 
     @Override
@@ -109,16 +117,21 @@ public class MonitoringService extends IntentService {
     public void onDestroy()
     {
         Log.e(TAG, "onDestroy");
-        super.onDestroy();
-        if (mLocationManager != null) {
-            for (int i = 0; i < mLocationListeners.length; i++) {
-                try {
-                    mLocationManager.removeUpdates(mLocationListeners[i]);
-                } catch (Exception ex) {
-                    Log.i(TAG, "fail to remove location listners, ignore", ex);
-                }
-            }
+//        super.onDestroy();
+//        if (mLocationManager != null) {
+//            for (int i = 0; i < mLocationListeners.length; i++) {
+//                try {
+//                    mLocationManager.removeUpdates(mLocationListeners[i]);
+//                } catch (Exception ex) {
+//                    Log.i(TAG, "fail to remove location listners, ignore", ex);
+//                }
+//            }
+//        }
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+            receiver = null;
         }
+        super.onDestroy();
     }
     private void initializeLocationManager() {
         Log.e(TAG, "initializeLocationManager");

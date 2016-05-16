@@ -10,14 +10,15 @@ import android.util.Log;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.Callback;
 import com.facebook.react.shell.MainReactPackage;
 import com.zmxv.RNSound.RNSoundPackage;
+import com.facebook.react.bridge.Callback;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends ReactActivity {
+    private static final String TAG = "TestingActivity";
 
     /**
      * Returns the name of the main component registered from JavaScript.
@@ -37,6 +38,29 @@ public class MainActivity extends ReactActivity {
         return BuildConfig.DEBUG;
     }
 
+    public void setCallback(Callback callback) {
+        callback.invoke(4);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Log.e(TAG, "onCreate");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("SOME_ACTION");
+        filter.addAction("SOME_OTHER_ACTION");
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //do something based on the intent's action
+                Log.i(TAG, String.valueOf(intent.getData()));
+            }
+        };
+        registerReceiver(receiver, filter);
+    }
+
     /**
      * A list of packages used by the app. If the app uses additional views
      * or modules besides the default ones, add more packages here.
@@ -48,28 +72,5 @@ public class MainActivity extends ReactActivity {
             new RNSoundPackage(),
             new AppReactPackage()
         );
-    }
-
-    public void setCallback(Callback callback) {
-        callback.invoke(3);
-    }
-
-    private BroadcastReceiver receiver;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("SOME_ACTION");
-        filter.addAction("SOME_OTHER_ACTION");
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                //do something based on the intent's action
-                Log.i("TestingActivity", String.valueOf(intent.getData()));
-            }
-        };
-        registerReceiver(receiver, filter);
     }
 }

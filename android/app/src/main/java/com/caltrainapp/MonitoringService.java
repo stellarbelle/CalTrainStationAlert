@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,6 +21,7 @@ public class MonitoringService extends IntentService {
 
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "TestingService";
+    public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 10f;
@@ -57,12 +59,6 @@ public class MonitoringService extends IntentService {
             new LocationListener(LocationManager.NETWORK_PROVIDER)
     };
 
-    @Override
-    public IBinder onBind(Intent arg0)
-    {
-        return null;
-    }
-    @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         Log.e(TAG, "onStartCommand");
@@ -81,17 +77,20 @@ public class MonitoringService extends IntentService {
         String stationLong = arr[1];
 
         Log.i(TAG, "onHandleIntent");
-        Log.i(TAG, String.valueOf(intent.getData()));
 
-        Intent RTReturn = new Intent();
-        RTReturn.setAction("my first intent");
-        LocalBroadcastManager.getInstance(this).sendBroadcast(RTReturn);
+        Intent RTReturn = new Intent(MY_FIRST_INTENT);
+        RTReturn.setData(Uri.parse("http://www.helloworld.com"));
+        Log.i(TAG, "sendBroadcast start");
+        LocalBroadcastManager instance = LocalBroadcastManager.getInstance(this);
+        instance.sendBroadcastSync(RTReturn);
 //        sendBroadcast(RTReturn);
+        Log.e(TAG, "sendBroadcast done");
     }
 
     @Override
     public void onCreate()
     {
+        super.onCreate();
         Log.e(TAG, "onCreate");
         initializeLocationManager();
         try {
@@ -117,21 +116,16 @@ public class MonitoringService extends IntentService {
     public void onDestroy()
     {
         Log.e(TAG, "onDestroy");
-//        super.onDestroy();
-//        if (mLocationManager != null) {
-//            for (int i = 0; i < mLocationListeners.length; i++) {
-//                try {
-//                    mLocationManager.removeUpdates(mLocationListeners[i]);
-//                } catch (Exception ex) {
-//                    Log.i(TAG, "fail to remove location listners, ignore", ex);
-//                }
-//            }
-//        }
-        if (receiver != null) {
-            unregisterReceiver(receiver);
-            receiver = null;
-        }
         super.onDestroy();
+        if (mLocationManager != null) {
+            for (int i = 0; i < mLocationListeners.length; i++) {
+                try {
+                    mLocationManager.removeUpdates(mLocationListeners[i]);
+                } catch (Exception ex) {
+                    Log.i(TAG, "fail to remove location listners, ignore", ex);
+                }
+            }
+        }
     }
     private void initializeLocationManager() {
         Log.e(TAG, "initializeLocationManager");

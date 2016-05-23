@@ -21,21 +21,23 @@ public class AppModule extends ReactContextBaseJavaModule {
     public AppModule(ReactApplicationContext reactContext) {
         super(reactContext);
 
-        Log.i(TAG, "Creating an intent filter");
+//        Log.i(TAG, "Creating an intent filter");
         IntentFilter filter = new IntentFilter(MonitoringService.MY_FIRST_INTENT);
 
-        Log.i(TAG, "Creating a broadcast receiver");
+//        Log.i(TAG, "Creating a broadcast receiver");
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                //do something based on the intent's action
-                Log.i(TAG, String.valueOf(intent.getData()));
-                Log.i(TAG, "Recieved intent");
+                Log.i(TAG, "onReceive!!!");
+                String latitude = intent.getStringExtra("stationLat");
+                String longitude = intent.getStringExtra("stationLong");
+                Log.i(TAG, "Latitude: " + latitude);
+                Log.i(TAG, "Longitude: " + longitude);
             }
         };
 
         try {
-            Log.i(TAG, "Getting a broadcast manager");
+//            Log.i(TAG, "Getting a broadcast manager");
             ReactApplicationContext reactApplicationContext = getReactApplicationContext();
             LocalBroadcastManager instance = LocalBroadcastManager.getInstance(reactApplicationContext);
 
@@ -46,7 +48,7 @@ public class AppModule extends ReactContextBaseJavaModule {
             Log.e(TAG, "failed to register reciever", e);
         }
 
-        Log.i(TAG, "Done");
+//        Log.i(TAG, "Done");
     }
     @Override
     public String getName() {
@@ -55,16 +57,13 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setStation(String stationLat, String stationLong, Callback callback) {
-        String data = "caltrain://" + stationLat + "/" + stationLong;
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
-        mServiceIntent.setData(Uri.parse(data));
+        mServiceIntent.putExtra("stationLat", stationLat);
+        mServiceIntent.putExtra("stationLong", stationLong);
 
-        Log.i(TAG, "Starting intent service");
         activity.startService(mServiceIntent);
-        Log.i(TAG, "Intent service started");
 
-        Log.i("TestingModule", data);
         activity.setCallback(callback);
     }
 

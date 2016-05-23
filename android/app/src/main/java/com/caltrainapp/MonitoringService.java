@@ -5,37 +5,47 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 
 public class MonitoringService extends IntentService {
 
-    private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "TestingService";
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
     private LocationManager mLocationManager = null;
     private static final int LOCATION_INTERVAL = 1000;
     private static final float LOCATION_DISTANCE = 10f;
+    private String stationLat;
+    private String stationLong;
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
         public LocationListener(String provider) {
-            Log.e(TAG, "LocationListener " + provider);
+            Log.i(TAG, "LocationListener " + provider);
             mLastLocation = new Location(provider);
+            Log.i(TAG, "Last Location: " + mLastLocation.toString());
         }
 
         @Override
         public void onLocationChanged(Location location) {
-            Log.e(TAG, "onLocationChanged: " + location);
+            Log.i(TAG, "onLocationChanged: " + location);
+            Log.i(TAG, "Longitude: " + location.getLongitude());
+            Log.i(TAG, "Latitude: " + location.getLatitude());
+            if (stationLat && stationLong) {
+                float destLat = Float.parseFloat(stationLat);
+                float destLong = Float.parseFloat(stationLong);
+                Location destLocation = new Location("destLocation");
+                destLocation.setLatitude(destLat);
+                destLocation.setLongitude(destLong);
+                Log.i(TAG, "Distance: " + location.distanceTo(destLocation));
+            }
+
+//            try {
+//                Log.i(TAG, "Distance: " + location.distanceTo(destLocation));
+//            } catch (Exception e) {
+//                Log.e(TAG, "Error!", e);
+//            }
             mLastLocation.set(location);
         }
 
@@ -54,10 +64,7 @@ public class MonitoringService extends IntentService {
             Log.e(TAG, "onProviderDisabled: " + provider);
         }
     }
-    LocationListener[] mLocationListeners = new LocationListener[] {
-            new LocationListener(LocationManager.GPS_PROVIDER),
-            new LocationListener(LocationManager.NETWORK_PROVIDER)
-    };
+    LocationListener mLocationListener = new LocationListener(LocationManager.GPS_PROVIDER);
 
     public int onStartCommand(Intent intent, int flags, int startId)
     {
@@ -71,20 +78,23 @@ public class MonitoringService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String path = intent.getData().getPath();
-        String[] arr = path.split("/", 2);
-        String stationLat = arr[0];
-        String stationLong = arr[1];
-
         Log.i(TAG, "onHandleIntent");
 
-        Intent RTReturn = new Intent(MY_FIRST_INTENT);
-        RTReturn.setData(Uri.parse("http://www.helloworld.com"));
-        Log.i(TAG, "sendBroadcast start");
+        stationLat = intent.getStringExtra("stationLat");
+        stationLong = intent.getStringExtra("stationLong");
+
+        Log.i(TAG, "creating intent ... ");
+        Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
+        Log.i(TAG, "putting stationLat... ");
+        myBroadcastIntent.putExtra("stationLat", stationLat);
+        Log.i(TAG, "putting stationLong... ");
+        myBroadcastIntent.putExtra("stationLong", stationLong);
+
+        Log.i(TAG, "getting LBM... ");
         LocalBroadcastManager instance = LocalBroadcastManager.getInstance(this);
-        instance.sendBroadcastSync(RTReturn);
-//        sendBroadcast(RTReturn);
-        Log.e(TAG, "sendBroadcast done");
+
+        Log.i(TAG, "broadcasting intent ... ");
+        instance.sendBroadcast(myBroadcastIntent);
     }
 
     @Override
@@ -95,17 +105,8 @@ public class MonitoringService extends IntentService {
         initializeLocationManager();
         try {
             mLocationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                    mLocationListeners[1]);
-        } catch (java.lang.SecurityException ex) {
-            Log.i(TAG, "fail to request location update, ignore", ex);
-        } catch (IllegalArgumentException ex) {
-            Log.d(TAG, "network provider does not exist, " + ex.getMessage());
-        }
-        try {
-            mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                    mLocationListeners[0]);
+                    mLocationListener);
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);
         } catch (IllegalArgumentException ex) {
@@ -118,12 +119,10 @@ public class MonitoringService extends IntentService {
         Log.e(TAG, "onDestroy");
         super.onDestroy();
         if (mLocationManager != null) {
-            for (int i = 0; i < mLocationListeners.length; i++) {
-                try {
-                    mLocationManager.removeUpdates(mLocationListeners[i]);
-                } catch (Exception ex) {
-                    Log.i(TAG, "fail to remove location listners, ignore", ex);
-                }
+            try {
+                mLocationManager.removeUpdates(mLocationListener);
+            } catch (Exception ex) {
+                Log.w(TAG, "fail to remove location listners, ignore", ex);
             }
         }
     }

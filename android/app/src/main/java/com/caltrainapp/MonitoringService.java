@@ -32,7 +32,7 @@ public class MonitoringService extends IntentService {
             Log.i(TAG, "onLocationChanged: " + location);
             Log.i(TAG, "Longitude: " + location.getLongitude());
             Log.i(TAG, "Latitude: " + location.getLatitude());
-            if (stationLat && stationLong) {
+            if (stationLat != null && stationLong != null) {
                 float destLat = Float.parseFloat(stationLat);
                 float destLong = Float.parseFloat(stationLong);
                 Location destLocation = new Location("destLocation");

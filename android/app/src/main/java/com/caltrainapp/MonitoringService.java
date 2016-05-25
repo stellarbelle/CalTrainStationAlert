@@ -14,8 +14,8 @@ public class MonitoringService extends IntentService {
     private static final String TAG = "TestingService";
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
     private LocationManager mLocationManager = null;
-    private static final int LOCATION_INTERVAL = 1000;
-    private static final float LOCATION_DISTANCE = 10f;
+    private static final int MINIMUM_TIME_BETWEEN_UPDATES = 1;
+    private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 1;
     private String stationLat;
     private String stationLong;
 
@@ -85,9 +85,9 @@ public class MonitoringService extends IntentService {
 
         Log.i(TAG, "creating intent ... ");
         Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
-        Log.i(TAG, "putting stationLat... ");
+        Log.i(TAG, "putting stationLat... " + stationLong);
         myBroadcastIntent.putExtra("stationLat", stationLat);
-        Log.i(TAG, "putting stationLong... ");
+        Log.i(TAG, "putting stationLong... " + stationLat);
         myBroadcastIntent.putExtra("stationLong", stationLong);
 
         Log.i(TAG, "getting LBM... ");
@@ -105,7 +105,7 @@ public class MonitoringService extends IntentService {
         initializeLocationManager();
         try {
             mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+                    LocationManager.GPS_PROVIDER, MINIMUM_TIME_BETWEEN_UPDATES, MINIMUM_DISTANCE_BETWEEN_UPDATES,
                     mLocationListener);
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);

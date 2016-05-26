@@ -3,6 +3,7 @@ package com.caltrainapp;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.view.View;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
@@ -65,6 +66,9 @@ public class AppModule extends ReactContextBaseJavaModule {
         activity.startService(mServiceIntent);
 
         activity.setCallback(callback);
+    }
+    public void stopService(View view) {
+        //is this ok?
     }
 
 

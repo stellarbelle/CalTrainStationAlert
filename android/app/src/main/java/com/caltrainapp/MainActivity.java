@@ -39,9 +39,6 @@ public class MainActivity extends ReactActivity {
         return BuildConfig.DEBUG;
     }
 
-    public void setCallback(Callback callback) {
-        callback.invoke(4);
-    }
 
     /**
      * A list of packages used by the app. If the app uses additional views

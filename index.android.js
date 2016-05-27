@@ -23,6 +23,7 @@ import {
 } from 'react-native-radio-buttons';
 import Sound from 'react-native-sound'; 
 import SettingsList from 'react-native-settings-list';
+import Subscribable from 'Subscribable';
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
@@ -123,12 +124,12 @@ class CalTrainApp extends Component {
     console.log("OK pressed!")
   }
 
-  onLocationUpdated(data) {
-    this.setState({
-      distance: data
-    });
-    console.log("I am updated! ", data);
-    this.onWatchPosition.bind(this)
+  onLocationUpdated(e: Event) {
+    // this.setState({
+    //   distance: e;
+    // });
+    console.log("I am updated! ", e);
+    // this.onWatchPosition.bind(this)
   }
 
   setLatAndLong(station){
@@ -140,7 +141,7 @@ class CalTrainApp extends Component {
       if(station === stops[i].name){
         let stationLat = stops[i].lat;
         let stationLong = stops[i].long;
-        AppAndroid.setStation(stationLat.toString(), stationLong.toString(), this.onLocationUpdated.bind(this));
+        AppAndroid.setStation(stationLat.toString(), stationLong.toString());
         // this.setState({stationLong, stationLat});
         setTimeout(() => {
           this.setState({
@@ -154,8 +155,12 @@ class CalTrainApp extends Component {
   componentWillMount() {
     this.setState({
       allStops: stops
-    })
+    });
+    this.addListenerOn(DeviceEventEmitter,
+                     'updatedDistance',
+                     this.onLocationUpdated.bind(this));
   }
+
 
   // componentDidMount() {
   //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));

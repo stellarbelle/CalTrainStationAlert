@@ -53,7 +53,12 @@ public class MonitoringService extends Service {
                 Location destLocation = new Location("destLocation");
                 destLocation.setLatitude(destLat);
                 destLocation.setLongitude(destLong);
-                Log.i(TAG, "Distance: " + location.distanceTo(destLocation));
+                Float distance = location.distanceTo(destLocation);
+
+                Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
+                myBroadcastIntent.putExtra("distance", distance);
+                LocalBroadcastManager instance = LocalBroadcastManager.getInstance(MonitoringService.this);
+                instance.sendBroadcast(myBroadcastIntent);
             }
 
 //            try {
@@ -112,19 +117,6 @@ public class MonitoringService extends Service {
 
         stationLat = intent.getStringExtra("stationLat");
         stationLong = intent.getStringExtra("stationLong");
-
-        Log.i(TAG, "creating intent ... ");
-        Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
-        Log.i(TAG, "putting stationLat... " + stationLong);
-        myBroadcastIntent.putExtra("stationLat", stationLat);
-        Log.i(TAG, "putting stationLong... " + stationLat);
-        myBroadcastIntent.putExtra("stationLong", stationLong);
-
-        Log.i(TAG, "getting LBM... ");
-        LocalBroadcastManager instance = LocalBroadcastManager.getInstance(this);
-
-        Log.i(TAG, "broadcasting intent ... ");
-        instance.sendBroadcast(myBroadcastIntent);
 
         return START_STICKY;
     }

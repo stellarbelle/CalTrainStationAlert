@@ -53,7 +53,8 @@ public class MonitoringService extends Service {
                 Location destLocation = new Location("destLocation");
                 destLocation.setLatitude(destLat);
                 destLocation.setLongitude(destLong);
-                Float distance = location.distanceTo(destLocation);
+                double distanceMeters = location.distanceTo(destLocation);
+                double distance = distanceMeters/1609.344;
 
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
                 myBroadcastIntent.putExtra("distance", distance);

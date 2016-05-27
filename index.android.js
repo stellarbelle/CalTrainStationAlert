@@ -1,5 +1,5 @@
-//react-native run-android
-//adb logcat *:S ReactNative:V ReactNativeJS:V
+//react-native run-android & react-native start
+//adb logcat *:S ReactNative:V ReactNativeJS:V TestingActivity:V TestingService:V AppModule:V
 //adb reverse tcp:8081 tcp:8081
 //<Text>{this.state.eventSwitchRegressionIsOn ? 'On' : 'Off'}</Text>
 
@@ -24,6 +24,7 @@ import {
 import Sound from 'react-native-sound'; 
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
+import reactMixin from 'react-mixin';
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
@@ -36,18 +37,18 @@ var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) =>
 });
 alertSound.setNumberOfLoops(-1);
 
-let distance = function(currentLat, currentLong, stationLat, stationLong) {
-  var radlat1 = Math.PI * currentLat/180
-  var radlat2 = Math.PI * stationLat/180
-  var theta = currentLong-stationLong
-  var radtheta = Math.PI * theta/180
-  var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-  dist = Math.acos(dist)
-  dist = dist * 180/Math.PI
-  dist = dist * 60 * 1.1515
-  console.log("distance: ", dist)
-  return dist
-}
+// let distance = function(currentLat, currentLong, stationLat, stationLong) {
+//   var radlat1 = Math.PI * currentLat/180
+//   var radlat2 = Math.PI * stationLat/180
+//   var theta = currentLong-stationLong
+//   var radtheta = Math.PI * theta/180
+//   var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+//   dist = Math.acos(dist)
+//   dist = dist * 180/Math.PI
+//   dist = dist * 60 * 1.1515
+//   console.log("distance: ", dist)
+//   return dist
+// }
 
 class CalTrainApp extends Component {
   constructor(props) {
@@ -124,14 +125,6 @@ class CalTrainApp extends Component {
     console.log("OK pressed!")
   }
 
-  onLocationUpdated(e: Event) {
-    // this.setState({
-    //   distance: e;
-    // });
-    console.log("I am updated! ", e);
-    // this.onWatchPosition.bind(this)
-  }
-
   setLatAndLong(station){
     this.setState({
       station
@@ -156,9 +149,15 @@ class CalTrainApp extends Component {
     this.setState({
       allStops: stops
     });
-    this.addListenerOn(DeviceEventEmitter,
-                     'updatedDistance',
-                     this.onLocationUpdated.bind(this));
+    // this.addListenerOn(DeviceEventEmitter, 'updatedDistance', this.onLocationUpdated.bind(this));
+    DeviceEventEmitter.addListener('updatedDistance', function(e: Event) {
+      console.log("I am updated! ", e.distance);
+      this.setState({
+        distance: e.distance
+      });
+      console.log("this.state.distance: ", this.state.distance);
+      this.onWatchPosition.bind(this);
+    }.bind(this));
   }
 
 
@@ -251,6 +250,7 @@ class CalTrainApp extends Component {
     )
   }
 }
+reactMixin(CalTrainApp.prototype, Subscribable);
 
 const styles = StyleSheet.create({
   container: {

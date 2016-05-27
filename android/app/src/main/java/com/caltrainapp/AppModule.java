@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import java.text.DecimalFormat;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -30,9 +31,10 @@ public class AppModule extends ReactContextBaseJavaModule {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, "onReceive!!!");
-                Float distance = intent.getFloatExtra("distance", 0);
+                double distanceMiles = intent.getDoubleExtra("distance", 0);
                 WritableMap params = Arguments.createMap();
-                params.putDouble("distance", distance);
+                String distance = String.format("%.1f", distanceMiles);
+                params.putString("distance", distance);
                 sendEvent(reactContext, "updatedDistance", params);
             }
         };

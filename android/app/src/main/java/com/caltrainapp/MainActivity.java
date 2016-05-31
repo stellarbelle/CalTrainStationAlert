@@ -59,9 +59,9 @@ public class MainActivity extends ReactActivity {
         Intent intent = new Intent(this, this.getClass());
         intent.addFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         this.startActivity(intent);
 //        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 //        alertDialog.setTitle("Alert");

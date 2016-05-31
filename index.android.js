@@ -82,8 +82,34 @@ class CalTrainApp extends Component {
     if (this.state.alert === true) {
       console.log("alert: ", this.state.alert);
       setTimeout(() => {
-          console.log("inside timout!!!"); 
-        }, 600);
+        console.log("inside timout!!!");
+        this.setState ({
+          stationLat: '',
+          stationLong: '',
+          station: ''
+        });
+        console.log("you are so close!");
+        if(this.state.audioValue) {
+          alertSound.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+        }
+        if (this.state.vibrateValue) {
+          Vibration.vibrate(
+          [0, 500, 200, 500], true)
+        }
+        Alert.alert(
+          'Alert',
+          alertMessage,
+          [
+            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+          ]
+        )
+      }, 600);
     } else if (dist <= 0.5) {
       this.setState ({
         stationLat: '',
@@ -168,9 +194,18 @@ class CalTrainApp extends Component {
   //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
   // }
 
-  // componentWillUnmount() {
-  //   navigator.geolocation.clearWatch(this.watchID);
-  // }
+  componentWillUnmount() {
+    DeviceEventEmitter.removeListener('updatedDistance', function(e: Event) {
+      console.log("I am updated! ", e.distance, e.audioValue, e.vibrateValue);
+      this.setState({
+        distance: e.distance,
+        audioValue: e.audioValue,
+        vibrateValue: e.vibrateValue,
+        alert: e.alert
+      });
+      this.onWatchPosition();
+    }.bind(this));
+  }
 
   toggleList() {
     this.setState({

@@ -1,7 +1,11 @@
 package com.caltrainapp;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
 import android.view.View;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,9 +36,16 @@ public class AppModule extends ReactContextBaseJavaModule {
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, "onReceive!!!");
                 double distanceMiles = intent.getDoubleExtra("distance", 0);
+                boolean audioValue = intent.getBooleanExtra("audioValue", false);
+                boolean vibrateValue = intent.getBooleanExtra("vibrateValue", false);
                 WritableMap params = Arguments.createMap();
                 String distance = String.format("%.1f", distanceMiles);
                 params.putString("distance", distance);
+                params.putBoolean("audioValue", audioValue);
+                params.putBoolean("vibrateValue", vibrateValue);
+                if (distanceMiles <= 0.5) {
+                    params.putBoolean("alert", true);
+                }
                 sendEvent(reactContext, "updatedDistance", params);
             }
         };
@@ -78,5 +89,18 @@ public class AppModule extends ReactContextBaseJavaModule {
         //is this ok?
     }
 
+//    public void alert() {
+//        Activity alertActivity = getCurrentActivity();
+//        AlertDialog alertDialog = new AlertDialog.Builder(alertActivity).create();
+//        alertDialog.setTitle("Alert");
+//        alertDialog.setMessage("Alert message to be shown");
+//        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                });
+//        alertDialog.show();
+//    }
 
 }

@@ -1,10 +1,13 @@
 package com.caltrainapp;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -30,9 +33,43 @@ public class MonitoringService extends Service {
     /** indicates whether onRebind should be used */
     boolean mAllowRebind;
 
+    NotificationCompat.Builder mBuilder;
+    NotificationManager mNotifyMgr;
+    int mNotificationId;
+
+
 //    public MonitoringService() {
-//        super("MonitoringService");
+//        super();
+//        Log.i(TAG, "assigning mBuilder");
+//        mBuilder =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.train)
+//                        .setContentTitle("You are on your way!")
+//                        .setContentText("Getting distance...");
+//        mNotificationId = 1;
+//        // Gets an instance of the NotificationManager service
+//        Log.i(TAG, "assigning mNotifyMgr");
+//        mNotifyMgr =
+//                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//        // Builds the notification and issues it.
+//        Log.i(TAG, "building/issuing notification");
+//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+//        Log.i(TAG, "done building/issuing notification");
+//
+////        Intent resultIntent = new Intent(this, MonitoringService.class);
+//        // Because clicking the notification opens a new ("special") activity, there's
+//        // no need to create an artificial back stack.
+////        PendingIntent resultPendingIntent =
+////                PendingIntent.getActivity(
+////                        this,
+////                        0,
+////                        resultIntent,
+////                        PendingIntent.FLAG_UPDATE_CURRENT
+////                );
+////
+////        mBuilder.setContentIntent(resultPendingIntent);
 //    }
+
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
@@ -55,8 +92,22 @@ public class MonitoringService extends Service {
                 destLocation.setLongitude(destLong);
                 double distanceMeters = location.distanceTo(destLocation);
                 double distance = distanceMeters/1609.344;
-
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
+                if(distance <= 0.5){
+                    myBroadcastIntent.putExtra("audioValue", true);
+                    myBroadcastIntent.putExtra("vibrateValue", true);
+                    String currentText = " Get ready! Your stop is in " + String.format("%.1f", distance) + " miles!";
+                    mBuilder.setContentText(currentText);
+                    mBuilder.setContentTitle("Alert! Your stop is next!");
+                } else {
+                    String currentText = "You are " + String.format("%.1f", distance) + " away.";
+                    Log.i(TAG, "setting current text " + currentText);
+                    mBuilder.setContentText(currentText);
+                    Log.i(TAG, "set text");
+                }
+                mNotifyMgr.notify(
+                        mNotificationId,
+                        mBuilder.build());
                 myBroadcastIntent.putExtra("distance", distance);
                 LocalBroadcastManager instance = LocalBroadcastManager.getInstance(MonitoringService.this);
                 instance.sendBroadcast(myBroadcastIntent);
@@ -109,6 +160,18 @@ public class MonitoringService extends Service {
         } catch (IllegalArgumentException ex) {
             Log.d(TAG, "gps provider does not exist " + ex.getMessage());
         }
+        Log.i(TAG, "assigning mBuilder");
+        mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.train)
+                        .setContentTitle("You are on your way!")
+                        .setContentText("Getting distance...");
+        mNotificationId = 1;
+        // Gets an instance of the NotificationManager service
+        mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
     /** The service is starting, due to a call to startService() */
@@ -149,7 +212,7 @@ public class MonitoringService extends Service {
             try {
                 mLocationManager.removeUpdates(mLocationListener);
             } catch (Exception ex) {
-                Log.w(TAG, "fail to remove location listners, ignore", ex);
+                Log.w(TAG, "fail to remove location listeners, ignore", ex);
             }
         }
     }

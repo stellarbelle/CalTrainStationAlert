@@ -37,19 +37,6 @@ var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) =>
 });
 alertSound.setNumberOfLoops(-1);
 
-// let distance = function(currentLat, currentLong, stationLat, stationLong) {
-//   var radlat1 = Math.PI * currentLat/180
-//   var radlat2 = Math.PI * stationLat/180
-//   var theta = currentLong-stationLong
-//   var radtheta = Math.PI * theta/180
-//   var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-//   dist = Math.acos(dist)
-//   dist = dist * 180/Math.PI
-//   dist = dist * 60 * 1.1515
-//   console.log("distance: ", dist)
-//   return dist
-// }
-
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
@@ -65,7 +52,8 @@ class CalTrainApp extends Component {
       showList: false,
       distance: '',
       audioSwitchValue: true,
-      vibrateSwitchValue: true
+      vibrateSwitchValue: true,
+      alert: false
     };
   }
 
@@ -88,11 +76,22 @@ class CalTrainApp extends Component {
     // this.setState({lastPosition, currentLat, currentLong});
     // console.log("currentLat: ", this.state.currentLat, " currentLong: ", this.state.currentLong, " stationLong: ", this.state.stationLong, " stationLat: ", this.state.stationLat);
     // let dist = distance(currentLat, currentLong, this.state.stationLat, this.state.stationLong);
+    console.log("alert outside: ", this.state.alert);
     console.log("dist: ", this.state.distance);
     let dist = this.state.distance;
-    if (dist <= 0.5) {
+    if (this.state.alert === true) {
+      console.log("alert: ", this.state.alert);
+      setTimeout(() => {
+          console.log("inside timout!!!"); 
+        }, 600);
+    } else if (dist <= 0.5) {
+      this.setState ({
+        stationLat: '',
+        stationLong: '',
+        station: ''
+      });
       console.log("you are so close!");
-      if(this.state.audioSwitchValue) {
+      if(this.state.audioValue) {
         alertSound.play((success) => {
           if (success) {
             console.log('successfully finished playing');
@@ -101,7 +100,7 @@ class CalTrainApp extends Component {
           }
         });
       }
-      if (this.state.vibrateSwitchValue) {
+      if (this.state.vibrateValue) {
         Vibration.vibrate(
         [0, 500, 200, 500], true)
       }
@@ -151,12 +150,16 @@ class CalTrainApp extends Component {
     });
     // this.addListenerOn(DeviceEventEmitter, 'updatedDistance', this.onLocationUpdated.bind(this));
     DeviceEventEmitter.addListener('updatedDistance', function(e: Event) {
-      console.log("I am updated! ", e.distance);
+      console.log("I am updated! ", e.distance, e.audioValue, e.vibrateValue);
       this.setState({
-        distance: e.distance
+        distance: e.distance,
+        audioValue: e.audioValue,
+        vibrateValue: e.vibrateValue,
+        alert: e.alert
       });
-      console.log("this.state.distance: ", this.state.distance);
-      this.onWatchPosition.bind(this);
+      // console.log("this.state.distance: ", this.state.distance);
+      // console.log("this.state.audio: ", this.state.audioValue);
+      this.onWatchPosition();
     }.bind(this));
   }
 

@@ -25,6 +25,9 @@ import Sound from 'react-native-sound';
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
 import reactMixin from 'react-mixin';
+import Radio, {
+  Option
+} from 'react-native-radio-button-classic'
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
@@ -40,42 +43,33 @@ alertSound.setNumberOfLoops(-1);
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
-    // this.watchID = null;
     this.state = {
       station: '',
       allStops: '',
-      // lastPosition: 'unknown',
-      // stationLat: '',
-      // stationLong: '',
-      // currentLong: '',
-      // currentLat: '',
       showList: false,
       distance: '',
       audioSwitchValue: true,
       vibrateSwitchValue: true,
-      alert: false
+      alert: false,
+      optionSelected: 1
     };
   }
 
   onAudioValueChange() {
     this.setState({
       audioSwitchValue: !this.state.audioSwitchValue
-    }); 
+    });
+    AppAndroid.setAudio(this.state.audioSwitchValue);
   }
 
   onVibrateValueChange() {
     this.setState({
       vibrateSwitchValue: !this.state.vibrateSwitchValue
-    }); 
+    });
+    AppAndroid.setVibrate(this.state.vibrateSwitchValue); 
   }
 
   onWatchPosition() {
-    // let lastPosition = position;
-    // let currentLong = position.coords.longitude;
-    // let currentLat = position.coords.latitude;
-    // this.setState({lastPosition, currentLat, currentLong});
-    // console.log("currentLat: ", this.state.currentLat, " currentLong: ", this.state.currentLong, " stationLong: ", this.state.stationLong, " stationLat: ", this.state.stationLat);
-    // let dist = distance(currentLat, currentLong, this.state.stationLat, this.state.stationLong);
     console.log("alert outside: ", this.state.alert);
     console.log("dist: ", this.state.distance);
     let dist = this.state.distance;
@@ -89,26 +83,26 @@ class CalTrainApp extends Component {
           station: ''
         });
         console.log("you are so close!");
-        if(this.state.audioValue) {
-          alertSound.play((success) => {
-            if (success) {
-              console.log('successfully finished playing');
-            } else {
-              console.log('playback failed due to audio decoding errors');
-            }
-          });
-        }
+        // if(this.state.audioValue) {
+        //   alertSound.play((success) => {
+        //     if (success) {
+        //       console.log('successfully finished playing');
+        //     } else {
+        //       console.log('playback failed due to audio decoding errors');
+        //     }
+        //   });
+        // }
         if (this.state.vibrateValue) {
           Vibration.vibrate(
           [0, 500, 200, 500], true)
         }
-        // Alert.alert(
-        //   'Alert',
-        //   alertMessage,
-        //   [
-        //     {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-        //   ]
-        // )
+        Alert.alert(
+          'Alert',
+          alertMessage,
+          [
+            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+          ]
+        )
       }, 600);
     } else if (dist <= 0.5) {
       this.setState ({
@@ -140,6 +134,12 @@ class CalTrainApp extends Component {
     }
   }
 
+  onSelect(index) {
+    this.setState({
+      optionSelected: index + 1
+    });
+  }
+
   onAlertPressed() {
     if(this.state.vibrateSwitchValue) {
       Vibration.cancel()
@@ -160,7 +160,6 @@ class CalTrainApp extends Component {
         let stationLat = stops[i].lat;
         let stationLong = stops[i].long;
         AppAndroid.setStation(stationLat.toString(), stationLong.toString());
-        // this.setState({stationLong, stationLat});
         setTimeout(() => {
           this.setState({
             showList: false
@@ -174,7 +173,6 @@ class CalTrainApp extends Component {
     this.setState({
       allStops: stops
     });
-    // this.addListenerOn(DeviceEventEmitter, 'updatedDistance', this.onLocationUpdated.bind(this));
     DeviceEventEmitter.addListener('updatedDistance', function(e: Event) {
       console.log("I am updated! ", e.distance, e.audioValue, e.vibrateValue);
       this.setState({
@@ -183,16 +181,9 @@ class CalTrainApp extends Component {
         vibrateValue: e.vibrateValue,
         alert: e.alert
       });
-      // console.log("this.state.distance: ", this.state.distance);
-      // console.log("this.state.audio: ", this.state.audioValue);
       this.onWatchPosition();
     }.bind(this));
   }
-
-
-  // componentDidMount() {
-  //   this.watchID = navigator.geolocation.watchPosition(this.onWatchPosition.bind(this));
-  // }
 
   componentWillUnmount() {
     DeviceEventEmitter.removeListener('updatedDistance', function(e: Event) {
@@ -217,28 +208,53 @@ class CalTrainApp extends Component {
   _renderSwitch() {
     if (!this.state.showList) {
       return (
-        <View>
-          <View style={styles.switch} >
-            <Text style={styles.label}>Vibrate</Text>
-            <Switch
-              onValueChange={this.onVibrateValueChange.bind(this)}
-              style={{marginBottom: 10}}
-              value={this.state.vibrateSwitchValue} />
-              <Text style={styles.label}>{this.state.vibrateSwitchValue ? 'On' : 'Off'}{'\n'}</Text>
+        <View style={styles.switchBlock}>
+          <View>
+            <Text style={styles.switchLabel}>Vibrate</Text>
+            <Text style={styles.switchLabel}>Audio</Text>
           </View>
-          <View style={styles.switch}>
-            <Text style={styles.label}>Audio</Text>
-            <Switch
-              onValueChange={this.onAudioValueChange.bind(this)}
-              style={{marginBottom: 10}}
-              value={this.state.audioSwitchValue} />
-            <Text style={styles.label}>{this.state.audioSwitchValue ? 'On' : 'Off'}</Text>
+          <View style={styles.switchCol}>
+            <View style={styles.switchRow}>
+              <Switch
+                onValueChange={this.onVibrateValueChange.bind(this)}
+                style={styles.switch}
+                value={this.state.vibrateSwitchValue} />
+                <Text style={styles.label}>{this.state.vibrateSwitchValue ? 'On' : 'Off'}{'\n'}</Text>
+            </View>
+            <View style={styles.switchRow}>
+              <Switch
+                onValueChange={this.onAudioValueChange.bind(this)}
+                style={styles.switch}
+                value={this.state.audioSwitchValue} />
+              <Text style={styles.label}>{this.state.audioSwitchValue ? 'On' : 'Off'}</Text>
+            </View>
           </View>
         </View>
       );
     } else {
       return null;
     }
+  }
+
+  _renderMileButtons() {
+    return(
+      <View>
+        <Radio onSelect={this.onSelect.bind(this)} defaultSelect={this.state.optionSelected - 1}>
+          <Option color="lightseagreen" selectedColor="darkcyan">
+            <Item title="0.5 Miles"/>
+          </Option>
+          <Option color="lightseagreen" selectedColor="darkcyan">
+            <Item title="1 Mile"/>
+          </Option>
+          <Option color="lightseagreen" selectedColor="darkcyan">
+            <Item title="3 Miles"/>
+          </Option>
+          <Option color="lightseagreen" selectedColor="darkcyan">
+            <Item title="5 Miles"/>
+          </Option>
+        </Radio>
+      </View>
+    );
   }
 
   _renderList() {
@@ -283,12 +299,30 @@ class CalTrainApp extends Component {
         <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
         <Text>{'\n'}</Text>
         {this._renderList()}
+        {this._renderMileButtons()}
         {this._renderStation()}
       </View>
     )
   }
 }
 reactMixin(CalTrainApp.prototype, Subscribable);
+
+class Item extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    var { title, description } = this.props;
+
+    return (
+      <View style={{ paddingTop: 7, paddingLeft: 8 }}>
+        <Text style={styles.title}>{ title }</Text>
+        <Text style={styles.description}>{ description }</Text>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -313,16 +347,32 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10
   },
+  switchBlock: {
+    flexDirection: 'row'
+  },
   switch: {
-    flexDirection: 'row',
+    marginBottom: 10, 
+    alignItems: 'flex-end'
+  },
+  switchRow: {
+    flexDirection: 'row'
+  },
+  switchCol: {
+    flexDirection: 'column'
+  },
+  switchLabel: {
+    marginBottom: 16,
+    marginTop: 2
   },
   label: {
-    textAlign: 'center',
     textAlignVertical: 'auto',
-    marginTop: 2
+    marginTop: 2,
+    marginLeft: 8
   },
   info: {
     alignItems: 'center'
+  },
+  title: {
   }
 });
 

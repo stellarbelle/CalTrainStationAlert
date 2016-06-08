@@ -102,13 +102,13 @@ class CalTrainApp extends Component {
           Vibration.vibrate(
           [0, 500, 200, 500], true)
         }
-        Alert.alert(
-          'Alert',
-          alertMessage,
-          [
-            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-          ]
-        )
+        // Alert.alert(
+        //   'Alert',
+        //   alertMessage,
+        //   [
+        //     {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+        //   ]
+        // )
       }, 600);
     } else if (dist <= 0.5) {
       this.setState ({

@@ -3,15 +3,18 @@ package com.caltrainapp;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 
 public class MonitoringService extends Service {
@@ -23,6 +26,7 @@ public class MonitoringService extends Service {
     private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 1;
     private String stationLat;
     private String stationLong;
+//    public static MediaPlayer mp = new MediaPlayer();
 
     /** indicates how to behave if the service is killed */
     int mStartMode;
@@ -38,38 +42,12 @@ public class MonitoringService extends Service {
     int mNotificationId;
 
 
-//    public MonitoringService() {
-//        super();
-//        Log.i(TAG, "assigning mBuilder");
-//        mBuilder =
-//                new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.train)
-//                        .setContentTitle("You are on your way!")
-//                        .setContentText("Getting distance...");
-//        mNotificationId = 1;
-//        // Gets an instance of the NotificationManager service
-//        Log.i(TAG, "assigning mNotifyMgr");
-//        mNotifyMgr =
-//                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        // Builds the notification and issues it.
-//        Log.i(TAG, "building/issuing notification");
-//        mNotifyMgr.notify(mNotificationId, mBuilder.build());
-//        Log.i(TAG, "done building/issuing notification");
-//
-////        Intent resultIntent = new Intent(this, MonitoringService.class);
-//        // Because clicking the notification opens a new ("special") activity, there's
-//        // no need to create an artificial back stack.
-////        PendingIntent resultPendingIntent =
-////                PendingIntent.getActivity(
-////                        this,
-////                        0,
-////                        resultIntent,
-////                        PendingIntent.FLAG_UPDATE_CURRENT
-////                );
-////
-////        mBuilder.setContentIntent(resultPendingIntent);
+//    public static class switchButtonListener extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            mp.stop();
+//        }
 //    }
-
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
@@ -93,12 +71,24 @@ public class MonitoringService extends Service {
                 double distanceMeters = location.distanceTo(destLocation);
                 double distance = distanceMeters/1609.344;
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
+//                Intent switchIntent = new Intent(MonitoringService.this, switchButtonListener.class);
+//                RemoteViews notificationView = new RemoteViews(getPackageName(),
+//                        R.layout.mynotification);
+//                PendingIntent pendingSwitchIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), switchIntent, 0);
+//                PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
+//                notificationView.setOnClickPendingIntent(R.id.closeOnFlash,
+//                        pendingSwitchIntent);
                 if(distance <= 0.5){
-                    myBroadcastIntent.putExtra("audioValue", true);
+//                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
+//                    mp.setLooping(true);
+//                    myBroadcastIntent.putExtra("audioValue", true);
                     myBroadcastIntent.putExtra("vibrateValue", true);
                     String currentText = " Get ready! Your stop is in " + String.format("%.1f", distance) + " miles!";
                     mBuilder.setContentText(currentText);
                     mBuilder.setContentTitle("Alert! Your stop is next!");
+//                    mBuilder.setContentIntent(pIntent);
+//                    mBuilder.addAction(R.drawable.train,"end", pIntent);
+//                    mp.start();
                 } else {
                     String currentText = "You are " + String.format("%.1f", distance) + " away.";
                     Log.i(TAG, "setting current text " + currentText);

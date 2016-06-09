@@ -1,15 +1,20 @@
 package com.caltrainapp;
 
+import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,7 +31,7 @@ public class MonitoringService extends Service {
     private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 1;
     private String stationLat;
     private String stationLong;
-//    public static MediaPlayer mp = new MediaPlayer();
+    public static MediaPlayer mp = new MediaPlayer();
 
     /** indicates how to behave if the service is killed */
     int mStartMode;
@@ -41,13 +46,7 @@ public class MonitoringService extends Service {
     NotificationManager mNotifyMgr;
     int mNotificationId;
 
-
-//    public static class switchButtonListener extends BroadcastReceiver {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            mp.stop();
-//        }
-//    }
+    public static final String ACTION_1 = "action_1";
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
@@ -59,6 +58,8 @@ public class MonitoringService extends Service {
 
         @Override
         public void onLocationChanged(Location location) {
+            mBuilder.setSound(null);
+            mBuilder.mActions.clear();
             Log.i(TAG, "onLocationChanged: " + location);
             Log.i(TAG, "Longitude: " + location.getLongitude());
             Log.i(TAG, "Latitude: " + location.getLatitude());
@@ -71,24 +72,26 @@ public class MonitoringService extends Service {
                 double distanceMeters = location.distanceTo(destLocation);
                 double distance = distanceMeters/1609.344;
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
-//                Intent switchIntent = new Intent(MonitoringService.this, switchButtonListener.class);
-//                RemoteViews notificationView = new RemoteViews(getPackageName(),
-//                        R.layout.mynotification);
-//                PendingIntent pendingSwitchIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), switchIntent, 0);
-//                PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
-//                notificationView.setOnClickPendingIntent(R.id.closeOnFlash,
-//                        pendingSwitchIntent);
+
+                PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
+
                 if(distance <= 0.5){
-//                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
-//                    mp.setLooping(true);
-//                    myBroadcastIntent.putExtra("audioValue", true);
+                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
+                    mp.setLooping(true);
+                    myBroadcastIntent.putExtra("audioValue", true);
                     myBroadcastIntent.putExtra("vibrateValue", true);
-                    String currentText = " Get ready! Your stop is in " + String.format("%.1f", distance) + " miles!";
+                    String currentText = "Get ready! Your stop is in " + String.format("%.1f", distance) + " miles!";
                     mBuilder.setContentText(currentText);
                     mBuilder.setContentTitle("Alert! Your stop is next!");
-//                    mBuilder.setContentIntent(pIntent);
-//                    mBuilder.addAction(R.drawable.train,"end", pIntent);
-//                    mp.start();
+                    mBuilder.setContentIntent(pIntent);
+                    //mBuilder.addAction(0,"End", pIntent);
+                    //mp.start();
+
+
+                    //End intent
+                    NotificationUtils.displayNotification(mBuilder.mContext, mBuilder);
+
+
                 } else {
                     String currentText = "You are " + String.format("%.1f", distance) + " away.";
                     Log.i(TAG, "setting current text " + currentText);
@@ -172,6 +175,18 @@ public class MonitoringService extends Service {
         stationLat = intent.getStringExtra("stationLat");
         stationLong = intent.getStringExtra("stationLong");
 
+        String action = intent.getAction();
+        if (ACTION_1.equals(action)) {
+            // TODO: handle action 1.
+            // If you want to cancel the notification: NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
+            NotificationManagerCompat.from(this).cancel(1);
+            //mp.stop();
+            Log.w(TAG, "new notif clicked");
+
+            android.os.Process.killProcess(android.os.Process.myPid());
+            System.exit(1);
+        }
+
         return START_STICKY;
     }
 
@@ -206,4 +221,61 @@ public class MonitoringService extends Service {
             }
         }
     }
+
+    /*NEW*/
+
+    public static class NotificationUtils {
+        public static final int NOTIFICATION_ID = 1;
+
+        public static final String ACTION_1 = "action_1";
+
+        public static void displayNotification(Context context, NotificationCompat.Builder builder) {
+
+            Intent action1Intent = new Intent(context, MonitoringService.class)
+                    .setAction(ACTION_1);
+
+            PendingIntent action1PendingIntent = PendingIntent.getService(context, 0,
+                    action1Intent, PendingIntent.FLAG_ONE_SHOT);
+
+            builder.addAction(new NotificationCompat.Action(0, "Close", action1PendingIntent));
+            builder.setSound(Uri.parse("android.resource://com.caltrainapp/" + R.raw.elegant_ringtone));
+
+            builder.mNotification.flags |= Notification.FLAG_INSISTENT;
+                    //.setContentTitle("Sample Notification")
+                    //.setContentText("Notification text goes here")
+
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
+            //Log.w(TAG, "context of notif : " + builder.mContext.toString());
+            //Log.w(TAG, "context : " + context.toString());
+            //Log.w(TAG, "notif intent class name : " + MonitoringService.class.getSimpleName());
+        }
+
+        public static class NotificationActionService extends IntentService {
+            public NotificationActionService() {
+                super(MonitoringService.class.getSimpleName());
+            }
+
+            @Override
+            protected void onHandleIntent(Intent intent) {
+//                Log.w(TAG, "heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeYYYYYYYYYYYYYYYYYYY");
+//                String action = intent.getAction();
+//                if (ACTION_1.equals(action)) {
+//                    // TODO: handle action 1.
+//                    // If you want to cancel the notification: NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
+//                    //NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
+//                    mp.stop();
+//                    Log.w(TAG, "new notif clicked");
+//                }
+//
+//                if (intent != null) {
+//                    String str = intent.getStringExtra("Key");
+//                    // Do whatever you need to do here.
+//                    Log.w(TAG, "tezst");
+//                }
+            }
+        }
+    }
+/*NED NEW*/
 }

@@ -89,6 +89,12 @@ public class AppModule extends ReactContextBaseJavaModule {
         //is this ok?
     }
 
+    @ReactMethod
+    public void hasClickedAlert() {
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        activity.getIntent().putExtra("hasClickedAlert",true);
+    }
+
 //    public void alert() {
 //        Activity alertActivity = getCurrentActivity();
 //        AlertDialog alertDialog = new AlertDialog.Builder(alertActivity).create();

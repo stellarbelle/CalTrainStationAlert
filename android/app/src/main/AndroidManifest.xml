@@ -34,5 +34,6 @@
       <service
         android:name=".MonitoringService"
         android:exported="false"/>
+        <service android:name=".NotificationUtils$NotificationActionService" />
     </application>
 </manifest>

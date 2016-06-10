@@ -59,7 +59,10 @@ class CalTrainApp extends Component {
     this.setState({
       audioSwitchValue: !this.state.audioSwitchValue
     });
+    console.log("changing audio value ;)");
     AppAndroid.setAudio(this.state.audioSwitchValue);
+    //AppAndroid.setAudio("true");
+    console.log("changing audio value after ......");
   }
 
   onVibrateValueChange() {
@@ -96,13 +99,13 @@ class CalTrainApp extends Component {
           Vibration.vibrate(
           [0, 500, 200, 500], true)
         }
-        Alert.alert(
-          'Alert',
-          alertMessage,
-          [
-            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-          ]
-        )
+//        Alert.alert(
+//          'Alert',
+//          alertMessage,
+//          [
+//            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+//          ]
+//        )
       }, 600);
     } else if (dist <= 0.5) {
       this.setState ({
@@ -124,13 +127,13 @@ class CalTrainApp extends Component {
         Vibration.vibrate(
         [0, 500, 200, 500], true)
       }
-      Alert.alert(
-        'Alert',
-        alertMessage,
-        [
-          {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-        ]
-      )
+//      Alert.alert(
+//        'Alert',
+//        alertMessage,
+//        [
+//          {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+//        ]
+//      )
     }
   }
 

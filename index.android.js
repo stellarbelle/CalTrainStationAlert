@@ -25,9 +25,10 @@ import Sound from 'react-native-sound';
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
 import reactMixin from 'react-mixin';
-import Radio, {
-  Option
-} from 'react-native-radio-button-classic'
+// import Radio, {
+//   Option
+// } from 'react-native-radio-button-classic'
+import Radio, {RadioButton} from 'react-native-simple-radio-button'
 
 var stops = require("./stops.json");
 var alertMessage = "Get off at next stop!";
@@ -39,7 +40,10 @@ var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) =>
   }
 });
 alertSound.setNumberOfLoops(-1);
-
+var radio_props = [
+  {label: 'param1', value: 0 },
+  {label: 'param2', value: 1 }
+];
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +55,8 @@ class CalTrainApp extends Component {
       audioSwitchValue: true,
       vibrateSwitchValue: true,
       alert: false,
-      optionSelected: 1
+      optionSelected: 1,
+      value: 0
     };
   }
 
@@ -69,86 +74,97 @@ class CalTrainApp extends Component {
     AppAndroid.setVibrate(this.state.vibrateSwitchValue); 
   }
 
-  onWatchPosition() {
-    console.log("alert outside: ", this.state.alert);
-    console.log("dist: ", this.state.distance);
-    let dist = this.state.distance;
-    if (this.state.alert === true) {
-      console.log("alert: ", this.state.alert);
-      setTimeout(() => {
-        console.log("inside timout!!!");
-        this.setState ({
-          stationLat: '',
-          stationLong: '',
-          station: ''
-        });
-        console.log("you are so close!");
-        // if(this.state.audioValue) {
-        //   alertSound.play((success) => {
-        //     if (success) {
-        //       console.log('successfully finished playing');
-        //     } else {
-        //       console.log('playback failed due to audio decoding errors');
-        //     }
-        //   });
-        // }
-        if (this.state.vibrateValue) {
-          Vibration.vibrate(
-          [0, 500, 200, 500], true)
-        }
-        Alert.alert(
-          'Alert',
-          alertMessage,
-          [
-            {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-          ]
-        )
-      }, 600);
-    } else if (dist <= 0.5) {
-      this.setState ({
-        stationLat: '',
-        stationLong: '',
-        station: ''
-      });
-      console.log("you are so close!");
-      if(this.state.audioValue) {
-        alertSound.play((success) => {
-          if (success) {
-            console.log('successfully finished playing');
-          } else {
-            console.log('playback failed due to audio decoding errors');
-          }
-        });
-      }
-      if (this.state.vibrateValue) {
-        Vibration.vibrate(
-        [0, 500, 200, 500], true)
-      }
-      Alert.alert(
-        'Alert',
-        alertMessage,
-        [
-          {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-        ]
-      )
-    }
-  }
+  // onWatchPosition() {
+  //   console.log("alert outside: ", this.state.alert);
+  //   console.log("dist: ", this.state.distance);
+  //   let dist = this.state.distance;
+  //   if (this.state.alert === true) {
+  //     console.log("alert: ", this.state.alert);
+  //     setTimeout(() => {
+  //       console.log("inside timout!!!");
+  //       this.setState ({
+  //         stationLat: '',
+  //         stationLong: '',
+  //         station: ''
+  //       });
+  //       console.log("you are so close!");
+  //       // if(this.state.audioValue) {
+  //       //   alertSound.play((success) => {
+  //       //     if (success) {
+  //       //       console.log('successfully finished playing');
+  //       //     } else {
+  //       //       console.log('playback failed due to audio decoding errors');
+  //       //     }
+  //       //   });
+  //       // }
+  //       if (this.state.vibrateValue) {
+  //         Vibration.vibrate(
+  //         [0, 500, 200, 500], true)
+  //       }
+  //       Alert.alert(
+  //         'Alert',
+  //         alertMessage,
+  //         [
+  //           {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+  //         ]
+  //       )
+  //     }, 600);
+  //   } else if (dist <= 0.5) {
+  //     this.setState ({
+  //       stationLat: '',
+  //       stationLong: '',
+  //       station: ''
+  //     });
+  //     console.log("you are so close!");
+  //     if(this.state.audioValue) {
+  //       alertSound.play((success) => {
+  //         if (success) {
+  //           console.log('successfully finished playing');
+  //         } else {
+  //           console.log('playback failed due to audio decoding errors');
+  //         }
+  //       });
+  //     }
+  //     if (this.state.vibrateValue) {
+  //       Vibration.vibrate(
+  //       [0, 500, 200, 500], true)
+  //     }
+  //     Alert.alert(
+  //       'Alert',
+  //       alertMessage,
+  //       [
+  //         {text: 'OK', onPress: this.onAlertPressed.bind(this)}
+  //       ]
+  //     )
+  //   }
+  // }
 
   onSelect(index) {
-    this.setState({
-      optionSelected: index + 1
-    });
+    if (index == 0) {
+      this.setState({
+        optionSelected: 1
+      });
+    } else if (index == 1) {
+      this.setState({
+        optionSelected: 3
+      });
+    } else {
+      this.setState({
+        optionSelected: 5
+      });
+    }
+    console.log("onSelect index ", index)
   }
 
-  onAlertPressed() {
-    if(this.state.vibrateSwitchValue) {
-      Vibration.cancel()
-    }
-    if(this.state.audioSwitchValue) {
-      alertSound.stop()
-    }
-    console.log("OK pressed!")
-  }
+  // onAlertPressed() {
+  //   if(this.state.vibrateSwitchValue) {
+  //     Vibration.cancel()
+  //   }
+  //   if(this.state.audioSwitchValue) {
+  //     alertSound.stop()
+  //   }
+  //   console.log("OK pressed!")
+  // }
 
   setLatAndLong(station){
     this.setState({
@@ -181,7 +197,7 @@ class CalTrainApp extends Component {
         vibrateValue: e.vibrateValue,
         alert: e.alert
       });
-      this.onWatchPosition();
+      // this.onWatchPosition();
     }.bind(this));
   }
 
@@ -237,24 +253,17 @@ class CalTrainApp extends Component {
   }
 
   _renderMileButtons() {
-    return(
-      <View>
-        <Radio onSelect={this.onSelect.bind(this)} defaultSelect={this.state.optionSelected - 1}>
-          <Option color="lightseagreen" selectedColor="darkcyan">
-            <Item title="0.5 Miles"/>
-          </Option>
-          <Option color="lightseagreen" selectedColor="darkcyan">
-            <Item title="1 Mile"/>
-          </Option>
-          <Option color="lightseagreen" selectedColor="darkcyan">
-            <Item title="3 Miles"/>
-          </Option>
-          <Option color="lightseagreen" selectedColor="darkcyan">
-            <Item title="5 Miles"/>
-          </Option>
-        </Radio>
-      </View>
-    );
+    if (!this.state.showList) {
+      return(
+        <View style={styles.warningButtons}>
+          <Radio
+            radio_props={radio_props}
+            initial={0}
+            onPress={(value) => {this.setState({value:value})}}
+          />
+        </View>
+      );
+    }
   }
 
   _renderList() {
@@ -316,7 +325,7 @@ class Item extends Component {
     var { title, description } = this.props;
 
     return (
-      <View style={{ paddingTop: 7, paddingLeft: 8 }}>
+      <View style={{  paddingLeft: 8 }}>
         <Text style={styles.title}>{ title }</Text>
         <Text style={styles.description}>{ description }</Text>
       </View>
@@ -371,6 +380,9 @@ const styles = StyleSheet.create({
   },
   info: {
     alignItems: 'center'
+  },
+  warningButtons: {
+    marginTop: 35
   },
   title: {
   }

@@ -25,6 +25,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 public class AppModule extends ReactContextBaseJavaModule {
     private static final String TAG = "AppModule";
     private BroadcastReceiver receiver;
+    private Intent myIntent;
 
     public AppModule(final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -43,6 +44,7 @@ public class AppModule extends ReactContextBaseJavaModule {
                 params.putString("distance", distance);
                 params.putBoolean("audioValue", audioValue);
                 params.putBoolean("vibrateValue", vibrateValue);
+                myIntent = intent;
                 if (distanceMiles <= 0.5) {
                     params.putBoolean("alert", true);
                 }
@@ -70,9 +72,27 @@ public class AppModule extends ReactContextBaseJavaModule {
                 .emit(eventName, params);
     }
 
+    public void setMyIntent(Intent intent) {
+        myIntent = intent;
+    }
+
+    public Intent getMyIntent() {
+        return myIntent;
+    }
+
     @Override
     public String getName() {
         return "AppAndroid";
+    }
+
+    @ReactMethod
+    public void setAudio(boolean value) {
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        Intent mServiceIntent = new Intent(activity, MonitoringService.class);
+        Log.e(TAG,"OKAAAAAAAAAAAAAAAAAAAAAAAAAYYYYYYYYYY : value = "+ String.valueOf(value) + " and myItent = "+String.valueOf(mServiceIntent));
+        mServiceIntent.putExtra("value", value);
+        Log.e(TAG,"OKAAAAAAAAAAAAAAAAAAAAAAAAAYYYYYYYYYY : value = "+ String.valueOf(value) + " and myItent.extras = "+String.valueOf(mServiceIntent.getExtras()));
+        activity.startService(mServiceIntent);
     }
 
     @ReactMethod
@@ -81,18 +101,11 @@ public class AppModule extends ReactContextBaseJavaModule {
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
         mServiceIntent.putExtra("stationLong", stationLong);
-
         activity.startService(mServiceIntent);
 
     }
     public void stopService(View view) {
         //is this ok?
-    }
-
-    @ReactMethod
-    public void hasClickedAlert() {
-        MainActivity activity = (MainActivity)getCurrentActivity();
-        activity.getIntent().putExtra("hasClickedAlert",true);
     }
 
 //    public void alert() {

@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.os.Vibrator;
 
 
 public class MonitoringService extends Service {
@@ -32,6 +34,7 @@ public class MonitoringService extends Service {
     private String stationLat;
     private String stationLong;
     public static MediaPlayer mp = new MediaPlayer();
+    private static boolean boolAudio = true;
 
     /** indicates how to behave if the service is killed */
     int mStartMode;
@@ -87,9 +90,10 @@ public class MonitoringService extends Service {
                     //mBuilder.addAction(0,"End", pIntent);
                     //mp.start();
 
-
                     //End intent
                     NotificationUtils.displayNotification(mBuilder.mContext, mBuilder);
+
+                    // We display an alert
 
 
                 } else {
@@ -174,6 +178,7 @@ public class MonitoringService extends Service {
 
         stationLat = intent.getStringExtra("stationLat");
         stationLong = intent.getStringExtra("stationLong");
+        boolAudio = intent.getBooleanExtra("value",true);
 
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {
@@ -183,8 +188,8 @@ public class MonitoringService extends Service {
             //mp.stop();
             Log.w(TAG, "new notif clicked");
 
-            android.os.Process.killProcess(android.os.Process.myPid());
-            System.exit(1);
+            //android.os.Process.killProcess(android.os.Process.myPid());
+            //System.exit(1);
         }
 
         return START_STICKY;
@@ -238,7 +243,17 @@ public class MonitoringService extends Service {
                     action1Intent, PendingIntent.FLAG_ONE_SHOT);
 
             builder.addAction(new NotificationCompat.Action(0, "Close", action1PendingIntent));
+
+            Log.e(TAG,"boolAudio = " + String.valueOf(boolAudio));
+
+            //Sound
             builder.setSound(Uri.parse("android.resource://com.caltrainapp/" + R.raw.elegant_ringtone));
+
+            //Vibration
+            builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+
+            //LED
+            builder.setLights(Color.CYAN, 3000, 3000);
 
             builder.mNotification.flags |= Notification.FLAG_INSISTENT;
                     //.setContentTitle("Sample Notification")

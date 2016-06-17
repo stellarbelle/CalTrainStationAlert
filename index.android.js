@@ -1,7 +1,7 @@
 //react-native run-android & react-native start
 //adb logcat *:S ReactNative:V ReactNativeJS:V TestingActivity:V TestingService:V AppModule:V
 //adb reverse tcp:8081 tcp:8081
-//<Text>{this.state.eventSwitchRegressionIsOn ? 'On' : 'Off'}</Text>
+//react-native-radio-buttons\lib\segmented-controls.js
 
 import {
   AppRegistry,
@@ -41,8 +41,9 @@ var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) =>
 });
 alertSound.setNumberOfLoops(-1);
 var radio_props = [
-  {label: 'param1', value: 0 },
-  {label: 'param2', value: 1 }
+  {label: '1 Minute Away Alarm', value: 1 },
+  {label: '3 MInute Away Alarm', value: 3 },
+  {label: '5 Minute Away Alarm', value: 5 }
 ];
 class CalTrainApp extends Component {
   constructor(props) {

@@ -57,7 +57,7 @@ class CalTrainApp extends Component {
       audioSwitchValue: true,
       vibrateSwitchValue: true,
       alert: false,
-      optionSelected: 1,
+      minuteSelected: "1",
       value: 0
     };
   }
@@ -76,97 +76,26 @@ class CalTrainApp extends Component {
     AppAndroid.setVibrate(this.state.vibrateSwitchValue); 
   }
 
-  // onWatchPosition() {
-  //   console.log("alert outside: ", this.state.alert);
-  //   console.log("dist: ", this.state.distance);
-  //   let dist = this.state.distance;
-  //   if (this.state.alert === true) {
-  //     console.log("alert: ", this.state.alert);
-  //     setTimeout(() => {
-  //       console.log("inside timout!!!");
-  //       this.setState ({
-  //         stationLat: '',
-  //         stationLong: '',
-  //         station: ''
-  //       });
-  //       console.log("you are so close!");
-  //       // if(this.state.audioValue) {
-  //       //   alertSound.play((success) => {
-  //       //     if (success) {
-  //       //       console.log('successfully finished playing');
-  //       //     } else {
-  //       //       console.log('playback failed due to audio decoding errors');
-  //       //     }
-  //       //   });
-  //       // }
-  //       if (this.state.vibrateValue) {
-  //         Vibration.vibrate(
-  //         [0, 500, 200, 500], true)
-  //       }
-  //       Alert.alert(
-  //         'Alert',
-  //         alertMessage,
-  //         [
-  //           {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-  //         ]
-  //       )
-  //     }, 600);
-  //   } else if (dist <= 0.5) {
-  //     this.setState ({
-  //       stationLat: '',
-  //       stationLong: '',
-  //       station: ''
-  //     });
-  //     console.log("you are so close!");
-  //     if(this.state.audioValue) {
-  //       alertSound.play((success) => {
-  //         if (success) {
-  //           console.log('successfully finished playing');
-  //         } else {
-  //           console.log('playback failed due to audio decoding errors');
-  //         }
-  //       });
-  //     }
-  //     if (this.state.vibrateValue) {
-  //       Vibration.vibrate(
-  //       [0, 500, 200, 500], true)
-  //     }
-  //     Alert.alert(
-  //       'Alert',
-  //       alertMessage,
-  //       [
-  //         {text: 'OK', onPress: this.onAlertPressed.bind(this)}
-  //       ]
-  //     )
-  //   }
-  // }
-
-  onSelect(index) {
+  
+  onSelectMinutes(index) {
     if (index == 0) {
       this.setState({
-        optionSelected: 1
+        minuteSelected: "1"
       });
+      AppAndroid.setMinuteAlert(this.state.minuteSelected); 
     } else if (index == 1) {
       this.setState({
-        optionSelected: 3
+        minuteSelected: "3"
       });
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
     } else {
       this.setState({
-        optionSelected: 5
+        minuteSelected: "5"
       });
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
     }
     console.log("onSelect index ", index)
   }
-
-  // onAlertPressed() {
-  //   if(this.state.vibrateSwitchValue) {
-  //     Vibration.cancel()
-  //   }
-  //   if(this.state.audioSwitchValue) {
-  //     alertSound.stop()
-  //   }
-  //   console.log("OK pressed!")
-  // }
 
   setLatAndLong(station){
     this.setState({
@@ -177,7 +106,7 @@ class CalTrainApp extends Component {
       if(station === stops[i].name){
         let stationLat = stops[i].lat;
         let stationLong = stops[i].long;
-        AppAndroid.setStation(stationLat.toString(), stationLong.toString());
+        AppAndroid.setStation(this.state.minuteSelected, stationLat.toString(), stationLong.toString());
         setTimeout(() => {
           this.setState({
             showList: false
@@ -199,7 +128,6 @@ class CalTrainApp extends Component {
         vibrateValue: e.vibrateValue,
         alert: e.alert
       });
-      // this.onWatchPosition();
     }.bind(this));
   }
 
@@ -254,14 +182,14 @@ class CalTrainApp extends Component {
     }
   }
 
-  _renderMileButtons() {
+  _renderMinuteButtons() {
     if (!this.state.showList) {
       return(
         <View style={styles.warningButtons}>
           <Radio
             radio_props={radio_props}
             initial={0}
-            onPress={(value) => {this.setState({value:value})}}
+            onPress={this.onSelectMinutes.bind(this)}
           />
         </View>
       );
@@ -310,7 +238,7 @@ class CalTrainApp extends Component {
         <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
         <Text>{'\n'}</Text>
         {this._renderList()}
-        {this._renderMileButtons()}
+        {this._renderMinuteButtons()}
         {this._renderStation()}
       </View>
     )

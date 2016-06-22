@@ -42,8 +42,8 @@ public class AppModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 String distance = String.format("%.1f", distanceMiles);
                 params.putString("distance", distance);
-                params.putBoolean("audioValue", audioValue);
-                params.putBoolean("vibrateValue", vibrateValue);
+//                params.putBoolean("audioValue", audioValue);
+//                params.putBoolean("vibrateValue", vibrateValue);
                 myIntent = intent;
                 if (distanceMiles <= 0.5) {
                     params.putBoolean("alert", true);
@@ -89,20 +89,34 @@ public class AppModule extends ReactContextBaseJavaModule {
     public void setAudio(boolean value) {
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
-        Log.e(TAG,"OKAAAAAAAAAAAAAAAAAAAAAAAAAYYYYYYYYYY : value = "+ String.valueOf(value) + " and myItent = "+String.valueOf(mServiceIntent));
-        mServiceIntent.putExtra("value", value);
-        Log.e(TAG,"OKAAAAAAAAAAAAAAAAAAAAAAAAAYYYYYYYYYY : value = "+ String.valueOf(value) + " and myItent.extras = "+String.valueOf(mServiceIntent.getExtras()));
+        Log.e(TAG,"set audio value = "+ String.valueOf(value));
+        mServiceIntent.putExtra("audioValue", value);
         activity.startService(mServiceIntent);
     }
 
     @ReactMethod
-    public void setStation(String stationLat, String stationLong) {
+    public void setVibrate(boolean value) {
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        Intent mServiceIntent = new Intent(activity, MonitoringService.class);
+        Log.e(TAG,"set vibrate value = "+ String.valueOf(value));
+        mServiceIntent.putExtra("vibrateValue", value);
+        activity.startService(mServiceIntent);
+    }
+
+    @ReactMethod
+    public void setStation(String minuteAlert, String stationLat, String stationLong) {
+        Log.i(TAG,"minutes selected: " + minuteAlert);
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
         mServiceIntent.putExtra("stationLong", stationLong);
         activity.startService(mServiceIntent);
 
+    }
+
+    @ReactMethod
+    public void setMinuteAlert(String minuteAlert) {
+        Log.i(TAG,"minute Alert: " + minuteAlert);
     }
     public void stopService(View view) {
         //is this ok?

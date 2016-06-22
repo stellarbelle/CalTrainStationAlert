@@ -34,7 +34,8 @@ public class MonitoringService extends Service {
     private String stationLat;
     private String stationLong;
     public static MediaPlayer mp = new MediaPlayer();
-    private static boolean boolAudio = true;
+    private static boolean audioValue;
+    private static boolean vibrateValue;
 
     /** indicates how to behave if the service is killed */
     int mStartMode;
@@ -79,10 +80,10 @@ public class MonitoringService extends Service {
                 PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
 
                 if(distance <= 0.5){
-                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
-                    mp.setLooping(true);
-                    myBroadcastIntent.putExtra("audioValue", true);
-                    myBroadcastIntent.putExtra("vibrateValue", true);
+//                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
+//                    mp.setLooping(true);
+//                    myBroadcastIntent.putExtra("audioValue", true);
+//                    myBroadcastIntent.putExtra("vibrateValue", true);
                     String currentText = "Get ready! Your stop is in " + String.format("%.1f", distance) + " miles!";
                     mBuilder.setContentText(currentText);
                     mBuilder.setContentTitle("Alert! Your stop is next!");
@@ -178,7 +179,8 @@ public class MonitoringService extends Service {
 
         stationLat = intent.getStringExtra("stationLat");
         stationLong = intent.getStringExtra("stationLong");
-        boolAudio = intent.getBooleanExtra("value",true);
+        audioValue = intent.getBooleanExtra("audioValue", true);
+        vibrateValue = intent.getBooleanExtra("vibrateValue",true);
 
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {
@@ -244,14 +246,18 @@ public class MonitoringService extends Service {
 
             builder.addAction(new NotificationCompat.Action(0, "Close", action1PendingIntent));
 
-            Log.e(TAG,"boolAudio = " + String.valueOf(boolAudio));
+            Log.e(TAG,"Audio Value = " + String.valueOf(audioValue));
 
-            //Sound
-            builder.setSound(Uri.parse("android.resource://com.caltrainapp/" + R.raw.elegant_ringtone));
-
-            //Vibration
-            builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
-
+            //Sound check if audioValue is true
+            if (audioValue) {
+                builder.setSound(Uri.parse("android.resource://com.caltrainapp/" + R.raw.elegant_ringtone));
+            }
+            //                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
+            //                    mp.setLooping(true);
+            //Vibration check if vibrateValue is true
+            if (vibrateValue) {
+                builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+            }
             //LED
             builder.setLights(Color.CYAN, 3000, 3000);
 

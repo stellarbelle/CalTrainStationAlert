@@ -161,7 +161,7 @@ public class MonitoringService extends Service {
         Log.i(TAG, "assigning mBuilder");
         mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.train)
+                        .setSmallIcon(R.drawable.icon)
                         .setContentTitle("You are on your way!")
                         .setContentText("Getting distance...");
         mNotificationId = 1;

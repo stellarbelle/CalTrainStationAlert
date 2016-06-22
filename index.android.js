@@ -29,23 +29,23 @@ import reactMixin from 'react-mixin';
 // import Radio, {
 //   Option
 // } from 'react-native-radio-button-classic'
-import Radio, {RadioButton} from 'react-native-simple-radio-button'
+import Radio, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button'
 
 var stops = require("./stops.json");
-var alertMessage = "Get off at next stop!";
-var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) => {
-  if (error) {
-    console.log('failed to load the sound', error);
-  } else {
-    console.log('Sound loaded');
-  }
-});
-alertSound.setNumberOfLoops(-1);
-var radio_props = [
-  {label: '1 Minute Away Alarm', value: 1 },
-  {label: '3 MInute Away Alarm', value: 3 },
-  {label: '5 Minute Away Alarm', value: 5 }
-];
+// var alertMessage = "Get off at next stop!";
+// var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) => {
+//   if (error) {
+//     console.log('failed to load the sound', error);
+//   } else {
+//     console.log('Sound loaded');
+//   }
+// });
+// alertSound.setNumberOfLoops(-1);
+// var radio_props = [
+//   {label: '1 Minute Away Alarm', value: 1 },
+//   {label: '3 MInute Away Alarm', value: 3 },
+//   {label: '5 Minute Away Alarm', value: 5 }
+// ];
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
@@ -58,7 +58,10 @@ class CalTrainApp extends Component {
       vibrateSwitchValue: true,
       alert: false,
       minuteSelected: "1",
-      value: 0
+      value: 0,
+      oneMin: true,
+      threeMin: false,
+      fiveMin: false
     };
   }
 
@@ -78,20 +81,32 @@ class CalTrainApp extends Component {
 
   
   onSelectMinutes(index) {
-    if (index == 0) {
+    if (index == 1) {
       this.setState({
-        minuteSelected: "1"
+        minuteSelected: "1",
+        oneMin: true,
+        threeMin: false,
+        fiveMin: false
       });
+      console.log("index: ",index)
       AppAndroid.setMinuteAlert(this.state.minuteSelected); 
-    } else if (index == 1) {
+    } else if (index == 3) {
       this.setState({
-        minuteSelected: "3"
+        minuteSelected: "3",
+        threeMin: true,
+        fiveMin: false,
+        oneMin: false
       });
+      console.log("index: ",index)
       AppAndroid.setMinuteAlert(this.state.minuteSelected);
     } else {
       this.setState({
-        minuteSelected: "5"
+        minuteSelected: "5",
+        fiveMin: true,
+        threeMin: false,
+        oneMin: false,
       });
+      console.log("index: ",index)
       AppAndroid.setMinuteAlert(this.state.minuteSelected);
     }
     console.log("onSelect index ", index)
@@ -186,11 +201,60 @@ class CalTrainApp extends Component {
     if (!this.state.showList) {
       return(
         <View style={styles.warningButtons}>
-          <Radio
-            radio_props={radio_props}
-            initial={0}
-            onPress={this.onSelectMinutes.bind(this)}
-          />
+          <RadioButton>
+            <RadioButtonInput 
+                onPress={this.onSelectMinutes.bind(this)}
+                buttonOuterColor='#abdddb' 
+                buttonInnerColor='#009385'
+                buttonSize={13}
+                index={0}
+                obj={{value: '1'}}
+                isSelected={this.state.oneMin}
+            />
+            <RadioButtonLabel 
+                onPress={this.onSelectMinutes.bind(this)}
+                labelColor='grey'
+                index={0}
+                obj={{label: '  1 Minute Warning', value: '1'}} 
+            >
+            </RadioButtonLabel>
+          </RadioButton>
+          <RadioButton>
+            <RadioButtonInput 
+                onPress={this.onSelectMinutes.bind(this)}
+                buttonOuterColor='#abdddb' 
+                buttonInnerColor='#009385'
+                buttonSize={13}
+                index={1}
+                obj={{value: '3'}}
+                isSelected={this.state.threeMin} 
+            />
+            <RadioButtonLabel 
+                onPress={this.onSelectMinutes.bind(this)}
+                labelColor='grey'
+                index={1}
+                obj={{label: '  3 Minute Warning', value: '3'}} 
+            >
+            </RadioButtonLabel>
+          </RadioButton>
+          <RadioButton>
+            <RadioButtonInput 
+                onPress={this.onSelectMinutes.bind(this)}
+                buttonOuterColor='#abdddb' 
+                buttonInnerColor='#009385'
+                buttonSize={13}
+                index={2}
+                obj={{value: '5'}}
+                isSelected={this.state.fiveMin}
+            />
+            <RadioButtonLabel 
+                onPress={this.onSelectMinutes.bind(this)}
+                labelColor='grey'
+                index={2}
+                obj={{label: '  5 Minute Warning', value: '5'}} 
+            >
+            </RadioButtonLabel>
+          </RadioButton>
         </View>
       );
     }

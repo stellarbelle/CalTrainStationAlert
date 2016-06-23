@@ -89,7 +89,7 @@ public class AppModule extends ReactContextBaseJavaModule {
     public void setAudio(boolean value) {
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
-        Log.e(TAG,"set audio value = "+ String.valueOf(value));
+        Log.e(TAG, "set audio value = " + String.valueOf(value));
         mServiceIntent.putExtra("audioValue", value);
         activity.startService(mServiceIntent);
     }
@@ -104,8 +104,7 @@ public class AppModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setStation(String minuteAlert, String stationLat, String stationLong) {
-        Log.i(TAG,"minutes selected: " + minuteAlert);
+    public void setStation(String stationLat, String stationLong) {
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
@@ -117,6 +116,11 @@ public class AppModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setMinuteAlert(String minuteAlert) {
         Log.i(TAG,"minute Alert: " + minuteAlert);
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        Intent mServiceIntent = new Intent(activity, MonitoringService.class);
+        mServiceIntent.putExtra("minuteAlert", minuteAlert);
+        activity.startService(mServiceIntent);
+
     }
     public void stopService(View view) {
         //is this ok?

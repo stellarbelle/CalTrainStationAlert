@@ -121,7 +121,7 @@ class CalTrainApp extends Component {
       if(station === stops[i].name){
         let stationLat = stops[i].lat;
         let stationLong = stops[i].long;
-        AppAndroid.setStation(this.state.minuteSelected, stationLat.toString(), stationLong.toString());
+        AppAndroid.setStation(stationLat.toString(), stationLong.toString());
         setTimeout(() => {
           this.setState({
             showList: false

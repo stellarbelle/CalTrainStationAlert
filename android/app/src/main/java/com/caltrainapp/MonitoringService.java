@@ -19,6 +19,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.format.Time;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.os.Vibrator;
@@ -36,7 +37,7 @@ public class MonitoringService extends Service {
     public static MediaPlayer mp = new MediaPlayer();
     private static boolean audioValue;
     private static boolean vibrateValue;
-
+    private static int minuteAlert = 1;
     /** indicates how to behave if the service is killed */
     int mStartMode;
 
@@ -67,6 +68,9 @@ public class MonitoringService extends Service {
             Log.i(TAG, "onLocationChanged: " + location);
             Log.i(TAG, "Longitude: " + location.getLongitude());
             Log.i(TAG, "Latitude: " + location.getLatitude());
+            Log.i(TAG, "Minute Alert: " + minuteAlert);
+            Log.i(TAG, "Vibrate: " + vibrateValue);
+            Log.i(TAG, "Audio: " + audioValue);
             if (stationLat != null && stationLong != null) {
                 float destLat = Float.parseFloat(stationLat);
                 float destLong = Float.parseFloat(stationLong);
@@ -78,8 +82,14 @@ public class MonitoringService extends Service {
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
 
                 PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
+//                float speed = location.getSpeed();
+//                double minutesAway = distanceMeters/speed;
+                Log.i(TAG, "Miles: " + distance);
+                Log.i(TAG, "Meters: " + distanceMeters);
+//                Log.i(TAG, "Speed: " + speed);
+//                Log.i(TAG, "Minutes Away: " + minutesAway);
 
-                if(distance <= 0.5){
+                if(distance <= minuteAlert){
 //                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
 //                    mp.setLooping(true);
 //                    myBroadcastIntent.putExtra("audioValue", true);
@@ -176,11 +186,14 @@ public class MonitoringService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-
         stationLat = intent.getStringExtra("stationLat");
         stationLong = intent.getStringExtra("stationLong");
         audioValue = intent.getBooleanExtra("audioValue", true);
-        vibrateValue = intent.getBooleanExtra("vibrateValue",true);
+        vibrateValue = intent.getBooleanExtra("vibrateValue", true);
+        minuteAlert = Integer.parseInt(intent.getStringExtra("minuteAlert"));
+        Log.i(TAG, "Minute Alert: " + minuteAlert);
+        Log.i(TAG, "Vibrate: " + vibrateValue);
+        Log.i(TAG, "Audio: " + audioValue);
 
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {

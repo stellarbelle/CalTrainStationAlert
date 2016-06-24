@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -27,6 +28,7 @@ import java.util.List;
 public class MainActivity extends ReactActivity {
     private static final String TAG = "TestingActivity";
     private BroadcastReceiver receiver;
+    private static boolean tone;
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
 
     @Override
@@ -73,6 +75,17 @@ public class MainActivity extends ReactActivity {
 //                    }
 //                });
 //        alertDialog.show();
+    }
+    public void tone(Intent intent) {
+        tone = intent.getBooleanExtra("tone", false);
+        if (tone) {
+            Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select ringtone for notifications:");
+            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM);
+            startActivityForResult(ringtoneIntent, 999);
+        }
     }
     /**
      * Returns the name of the main component registered from JavaScript.

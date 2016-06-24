@@ -42,8 +42,6 @@ public class AppModule extends ReactContextBaseJavaModule {
                 WritableMap params = Arguments.createMap();
                 String distance = String.format("%.1f", distanceMiles);
                 params.putString("distance", distance);
-//                params.putBoolean("audioValue", audioValue);
-//                params.putBoolean("vibrateValue", vibrateValue);
                 myIntent = intent;
                 if (distanceMiles <= 0.5) {
                     params.putBoolean("alert", true);
@@ -122,6 +120,17 @@ public class AppModule extends ReactContextBaseJavaModule {
         activity.startService(mServiceIntent);
 
     }
+
+    @ReactMethod
+    public void setTone(boolean tone) {
+        Log.i(TAG,"Tone: " + tone);
+        MainActivity activity = (MainActivity)getCurrentActivity();
+        Intent mServiceIntent = new Intent(activity, MonitoringService.class);
+        mServiceIntent.putExtra("tone", tone);
+        activity.tone(mServiceIntent);
+
+    }
+
     public void stopService(View view) {
         //is this ok?
     }

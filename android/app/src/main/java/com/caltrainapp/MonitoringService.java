@@ -13,6 +13,8 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -37,6 +39,7 @@ public class MonitoringService extends Service {
     public static MediaPlayer mp = new MediaPlayer();
     private static boolean audioValue = true;
     private static boolean vibrateValue = true;
+    private static boolean tone;
     private static int minuteAlert;
     /** indicates how to behave if the service is killed */
     int mStartMode;
@@ -193,6 +196,15 @@ public class MonitoringService extends Service {
         if (intent.hasExtra("vibrateValue")) {
             vibrateValue = intent.getBooleanExtra("vibrateValue", true);
         }
+//        tone = intent.getBooleanExtra("tone", false);
+//        if (tone) {
+//            Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+//            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select ringtone for notifications:");
+//            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+//            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+//            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM);
+//            startActivityForResult(ringtoneIntent, 999);
+//        }
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {
             // TODO: handle action 1.

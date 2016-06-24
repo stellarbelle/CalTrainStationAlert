@@ -27,7 +27,8 @@ import Sound from 'react-native-sound';
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
 import reactMixin from 'react-mixin';
-import Radio, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button'
+import Radio, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
+
 var { width, height } = Dimensions.get('window');
 
 var stops = require("./stops.json");
@@ -47,8 +48,7 @@ class CalTrainApp extends Component {
       value: 0,
       oneMin: true,
       threeMin: false,
-      fiveMin: false,
-      tone: false
+      fiveMin: false
     };
   }
 
@@ -123,11 +123,9 @@ class CalTrainApp extends Component {
       allStops: stops
     });
     DeviceEventEmitter.addListener('updatedDistance', function(e: Event) {
-      console.log("I am updated! ", e.distance, e.audioValue, e.vibrateValue);
+      console.log("I am updated! ", e.distance);
       this.setState({
         distance: e.distance,
-        audioValue: e.audioValue,
-        vibrateValue: e.vibrateValue,
         alert: e.alert
       });
     }.bind(this));
@@ -135,11 +133,9 @@ class CalTrainApp extends Component {
 
   componentWillUnmount() {
     DeviceEventEmitter.removeListener('updatedDistance', function(e: Event) {
-      console.log("I am updated! ", e.distance, e.audioValue, e.vibrateValue);
+      console.log("I am updated! ", e.distance);
       this.setState({
         distance: e.distance,
-        audioValue: e.audioValue,
-        vibrateValue: e.vibrateValue,
         alert: e.alert
       });
       this.onWatchPosition();
@@ -154,9 +150,7 @@ class CalTrainApp extends Component {
   }
 
   showTones() {
-    this.setState({
-      tone: !this.state.tone,
-    });
+    AppAndroid.setTone(true);
   }
 
   _renderSwitch() {
@@ -253,12 +247,14 @@ class CalTrainApp extends Component {
     }
   }
 
+//onclick or onslide
+//bring front
+//populate
   _renderList() {
     if (this.state.showList) {
       return (
-        <View style={{marginTop: 0}}>
-          <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
-          <ScrollView>
+        <View style={styles.stationList}>
+          <ScrollView style={{height: height-140}}>
             <SegmentedControls
               options={
                 this.state.allStops.stops.map(function(stop) {
@@ -275,29 +271,19 @@ class CalTrainApp extends Component {
       );
     } else {
       return (
-        <View>
+        <View style={styles.stationList}>
           <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
         </View>
-      )
+      );
     }
   }
   _renderToneMenu() {
-    if (this.state.tone) {
-      return (
-        <View>
-          <Button containerStyle={styles.menu} style={{color: 'white'}}
-                  onPress={this.showTones.bind(this)}>Close</Button>
-          <View style={[styles.overlay, { height: 360}]} />
-        </View>
-      );
-    } else {
-      return (
-        <View>
-          <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
-                  onPress={this.showTones.bind(this)}>Pick Tone</Button>
-        </View>
-      );
-    }
+    return (
+      <View>
+        <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
+                onPress={this.showTones.bind(this)}>Pick a Tone</Button>
+      </View>
+    );
   }
   _renderStation() {
     if(this.state.station && !this.state.showList) {
@@ -313,16 +299,14 @@ class CalTrainApp extends Component {
 
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         {this._renderToneMenu()}
-        <View style={styles.container}>
-          {this._renderSwitch()}
-          <Text>{'\n\n\n'}</Text>
-          {this._renderList()}
-          <Text>{'\n'}</Text>
-          {this._renderMinuteButtons()}
-          {this._renderStation()}
-        </View>
+        {this._renderSwitch()}
+        <Text>{'\n\n\n'}</Text>
+        {this._renderList()}
+        <Text>{'\n'}</Text>
+        {this._renderMinuteButtons()}
+        {this._renderStation()}
       </View>
     )
   }
@@ -338,7 +322,7 @@ class Item extends Component {
     var { title, description } = this.props;
 
     return (
-      <View style={{  paddingLeft: 8 }}>
+      <View style={{ paddingLeft: 8 }}>
         <Text style={styles.title}>{ title }</Text>
         <Text style={styles.description}>{ description }</Text>
       </View>
@@ -349,11 +333,10 @@ class Item extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    // margin: 20
-    marginTop: 90
+    // marginTop: 90
   },
   overlay: {
     flex: 1,
@@ -373,11 +356,17 @@ const styles = StyleSheet.create({
     width: width
   },
   buttons: {
+    width:200,
     padding:10, 
     height:45, 
     overflow:'hidden', 
     borderRadius:4, 
     backgroundColor: 'firebrick'
+  },
+  stationList: {
+    marginTop: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   station: {
     fontSize: 18,
@@ -388,6 +377,9 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   switchBlock: {
+    marginTop: 90,
+    justifyContent: 'center',
+    alignItems: 'center',
     flexDirection: 'row'
   },
   switch: {

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,6 +31,7 @@ public class MainActivity extends ReactActivity {
     private BroadcastReceiver receiver;
     private static boolean tone;
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
+    private static Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,12 +81,29 @@ public class MainActivity extends ReactActivity {
     public void tone(Intent intent) {
         tone = intent.getBooleanExtra("tone", false);
         if (tone) {
+//            final Uri currentTone= RingtoneManager.getActualDefaultRingtoneUri(MainActivity.this, RingtoneManager.TYPE_ALARM);
             Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select ringtone for notifications:");
+            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM);
+            if(uri != null) {
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
+            }
             startActivityForResult(ringtoneIntent, 999);
+//            int resultCode = new setResult(int);
+            onActivityResult(999, resultCode, ringtoneIntent);
+            if (resultCode == RESULT_OK) {
+                uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                if (uri != null) {
+                    String ringTonePath = uri.toString();
+                    Log.i(TAG, "Tone: " + ringTonePath);
+//                    RingtoneManager.setActualDefaultRingtoneUri(
+//                            MainActivity,
+//                            RingtoneManager.TYPE_RINGTONE,
+//                            uri);
+                }
+            }
         }
     }
     /**

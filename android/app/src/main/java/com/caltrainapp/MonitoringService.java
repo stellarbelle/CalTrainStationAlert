@@ -35,9 +35,9 @@ public class MonitoringService extends Service {
     private String stationLat;
     private String stationLong;
     public static MediaPlayer mp = new MediaPlayer();
-    private static boolean audioValue;
-    private static boolean vibrateValue;
-    private static int minuteAlert = 1;
+    private static boolean audioValue = true;
+    private static boolean vibrateValue = true;
+    private static int minuteAlert;
     /** indicates how to behave if the service is killed */
     int mStartMode;
 
@@ -65,12 +65,6 @@ public class MonitoringService extends Service {
         public void onLocationChanged(Location location) {
             mBuilder.setSound(null);
             mBuilder.mActions.clear();
-            Log.i(TAG, "onLocationChanged: " + location);
-            Log.i(TAG, "Longitude: " + location.getLongitude());
-            Log.i(TAG, "Latitude: " + location.getLatitude());
-            Log.i(TAG, "Minute Alert: " + minuteAlert);
-            Log.i(TAG, "Vibrate: " + vibrateValue);
-            Log.i(TAG, "Audio: " + audioValue);
             if (stationLat != null && stationLong != null) {
                 float destLat = Float.parseFloat(stationLat);
                 float destLong = Float.parseFloat(stationLong);
@@ -186,15 +180,19 @@ public class MonitoringService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand");
-        stationLat = intent.getStringExtra("stationLat");
-        stationLong = intent.getStringExtra("stationLong");
-        audioValue = intent.getBooleanExtra("audioValue", true);
-        vibrateValue = intent.getBooleanExtra("vibrateValue", true);
-        minuteAlert = Integer.parseInt(intent.getStringExtra("minuteAlert"));
-        Log.i(TAG, "Minute Alert: " + minuteAlert);
-        Log.i(TAG, "Vibrate: " + vibrateValue);
-        Log.i(TAG, "Audio: " + audioValue);
-
+        if (intent.hasExtra("stationLat") && intent.hasExtra("stationLong")) {
+            stationLat = intent.getStringExtra("stationLat");
+            stationLong = intent.getStringExtra("stationLong");
+        }
+        if (intent.hasExtra("minuteAlert")) {
+            minuteAlert = intent.getIntExtra("minuteAlert", 1);
+        }
+        if(intent.hasExtra("audioValue")) {
+            audioValue = intent.getBooleanExtra("audioValue", true);
+        }
+        if (intent.hasExtra("vibrateValue")) {
+            vibrateValue = intent.getBooleanExtra("vibrateValue", true);
+        }
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {
             // TODO: handle action 1.

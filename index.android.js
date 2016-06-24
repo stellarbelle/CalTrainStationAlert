@@ -14,7 +14,8 @@ import {
   DeviceEventEmitter,
   Alert,
   Vibration,
-  Switch
+  Switch,
+  Dimensions
 } from 'react-native';
 import React from 'react';
 import Button from 'react-native-button';
@@ -26,26 +27,11 @@ import Sound from 'react-native-sound';
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
 import reactMixin from 'react-mixin';
-// import Radio, {
-//   Option
-// } from 'react-native-radio-button-classic'
 import Radio, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button'
+var { width, height } = Dimensions.get('window');
 
 var stops = require("./stops.json");
-// var alertMessage = "Get off at next stop!";
-// var alertSound = new Sound('elegant_ringtone.mp3', Sound.MAIN_BUNDLE, (error) => {
-//   if (error) {
-//     console.log('failed to load the sound', error);
-//   } else {
-//     console.log('Sound loaded');
-//   }
-// });
-// alertSound.setNumberOfLoops(-1);
-// var radio_props = [
-//   {label: '1 Minute Away Alarm', value: 1 },
-//   {label: '3 MInute Away Alarm', value: 3 },
-//   {label: '5 Minute Away Alarm', value: 5 }
-// ];
+
 class CalTrainApp extends Component {
   constructor(props) {
     super(props);
@@ -57,11 +43,12 @@ class CalTrainApp extends Component {
       audioSwitchValue: true,
       vibrateSwitchValue: true,
       alert: false,
-      minuteSelected: "1",
+      minuteSelected: 1,
       value: 0,
       oneMin: true,
       threeMin: false,
-      fiveMin: false
+      fiveMin: false,
+      tone: false
     };
   }
 
@@ -83,7 +70,7 @@ class CalTrainApp extends Component {
   onSelectMinutes(index) {
     if (index == 1) {
       this.setState({
-        minuteSelected: "1",
+        minuteSelected: 1,
         oneMin: true,
         threeMin: false,
         fiveMin: false
@@ -92,7 +79,7 @@ class CalTrainApp extends Component {
       AppAndroid.setMinuteAlert(this.state.minuteSelected); 
     } else if (index == 3) {
       this.setState({
-        minuteSelected: "3",
+        minuteSelected: 3,
         threeMin: true,
         fiveMin: false,
         oneMin: false
@@ -101,7 +88,7 @@ class CalTrainApp extends Component {
       AppAndroid.setMinuteAlert(this.state.minuteSelected);
     } else {
       this.setState({
-        minuteSelected: "5",
+        minuteSelected: 5,
         fiveMin: true,
         threeMin: false,
         oneMin: false,
@@ -163,6 +150,12 @@ class CalTrainApp extends Component {
     this.setState({
       station: '',
       showList: !this.state.showList,
+    });
+  }
+
+  showTones() {
+    this.setState({
+      tone: !this.state.tone,
     });
   }
 
@@ -263,25 +256,49 @@ class CalTrainApp extends Component {
   _renderList() {
     if (this.state.showList) {
       return (
-        <ScrollView>
-          <SegmentedControls
-            options={
-              this.state.allStops.stops.map(function(stop) {
-                return stop.name
-              }) 
-            }
-            tint={'steelblue'}
-            onSelection={ this.setLatAndLong.bind(this) }
-            selectedOption={ this.state.station }
-            direction={ 'column' }
-          />
-        </ScrollView>
+        <View style={{marginTop: 0}}>
+          <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
+          <ScrollView>
+            <SegmentedControls
+              options={
+                this.state.allStops.stops.map(function(stop) {
+                  return stop.name
+                }) 
+              }
+              tint={'steelblue'}
+              onSelection={ this.setLatAndLong.bind(this) }
+              selectedOption={ this.state.station }
+              direction={ 'column' }
+            />
+          </ScrollView>
+        </View>
       );
     } else {
-      return null;
+      return (
+        <View>
+          <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
+        </View>
+      )
     }
   }
-
+  _renderToneMenu() {
+    if (this.state.tone) {
+      return (
+        <View>
+          <Button containerStyle={styles.menu} style={{color: 'white'}}
+                  onPress={this.showTones.bind(this)}>Close</Button>
+          <View style={[styles.overlay, { height: 360}]} />
+        </View>
+      );
+    } else {
+      return (
+        <View>
+          <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
+                  onPress={this.showTones.bind(this)}>Pick Tone</Button>
+        </View>
+      );
+    }
+  }
   _renderStation() {
     if(this.state.station && !this.state.showList) {
       return (
@@ -296,14 +313,16 @@ class CalTrainApp extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        {this._renderSwitch()}
-        <Text>{'\n\n\n'}</Text>
-        <Button containerStyle={styles.buttons} style={{color: 'white'}} onPress={this.toggleList.bind(this)}>Pick Your Exit Station</Button>
-        <Text>{'\n'}</Text>
-        {this._renderList()}
-        {this._renderMinuteButtons()}
-        {this._renderStation()}
+      <View>
+        {this._renderToneMenu()}
+        <View style={styles.container}>
+          {this._renderSwitch()}
+          <Text>{'\n\n\n'}</Text>
+          {this._renderList()}
+          <Text>{'\n'}</Text>
+          {this._renderMinuteButtons()}
+          {this._renderStation()}
+        </View>
       </View>
     )
   }
@@ -333,7 +352,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    margin: 20
+    // margin: 20
+    marginTop: 90
+  },
+  overlay: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    top: 20,
+    opacity: 0.5,
+    backgroundColor: 'black',
+    width: width,
+    height: height
+  },
+  menu: {
+    top: 0,
+    position: 'absolute',
+    height: 20,
+    backgroundColor: 'grey',
+    width: width
   },
   buttons: {
     padding:10, 
@@ -377,8 +414,6 @@ const styles = StyleSheet.create({
   },
   warningButtons: {
     marginTop: 35
-  },
-  title: {
   }
 });
 

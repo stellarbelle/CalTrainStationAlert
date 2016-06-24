@@ -40,7 +40,7 @@ public class MainActivity extends ReactActivity {
             public void onReceive(Context context,Intent intent){
                 Log.i(TAG,"activity onReceive!!!");
                 double distanceMiles=intent.getDoubleExtra("distance",0);
-                if(distanceMiles<=0.5){
+                if(distanceMiles <= 0.5){
                     Log.i(TAG, "calling alert!");
                     alert();
                 }

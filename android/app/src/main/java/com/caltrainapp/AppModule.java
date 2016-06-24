@@ -114,8 +114,8 @@ public class AppModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setMinuteAlert(String minuteAlert) {
-        Log.i(TAG,"minute Alert: " + minuteAlert);
+    public void setMinuteAlert(int minuteAlert) {
+        Log.i(TAG,"min Alert: " + minuteAlert);
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("minuteAlert", minuteAlert);

@@ -2,10 +2,13 @@ package com.caltrainapp;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -78,6 +81,73 @@ public class MainActivity extends ReactActivity {
 //                });
 //        alertDialog.show();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        StationAlertToneDbHelper mDbHelper = new StationAlertToneDbHelper(this);
+        SQLiteDatabase dbWrite = mDbHelper.getWritableDatabase();
+        SQLiteDatabase dbRead = mDbHelper.getReadableDatabase();
+        SQLiteDatabase dbUpdate = mDbHelper.getReadableDatabase();
+        if (resultCode == RESULT_OK) {
+            uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+            if (uri != null) {
+                String ringTonePath = uri.toString();
+                Log.i(TAG, "Tone: " + ringTonePath);
+                RingtoneManager.setActualDefaultRingtoneUri(
+                        this,
+                        RingtoneManager.TYPE_RINGTONE,
+                        uri);
+                Log.i(TAG, "Set Default: " + ringTonePath);
+                String[] projection = {
+                        "id",
+                        "tone_uri",
+
+                };
+                Log.i(TAG, "Projection: " + projection);
+                Cursor c = dbRead.query(
+                        "station_alert_tone",
+                        projection,
+                        "id = ?",
+                        new String[] {"1"},
+                        null,
+                        null,
+                        null
+                );
+                c.moveToFirst();
+
+                Log.i(TAG, "URI Count: " + c.getCount());
+                if (c.getCount() >= 1) {
+                    Log.i(TAG, "Updating URI");
+                    Log.i(TAG, "Current Index: " + c.getColumnIndex("tone_uri"));
+                    Log.i(TAG, "Current URI: " + c.getString(c.getColumnIndex("tone_uri")));
+                    ContentValues values = new ContentValues();
+                    values.put("tone_uri", ringTonePath);
+                    String selection = "id" + " LIKE ?";
+                    String[] selectionArgs = { "1" };
+                    int count = dbUpdate.update(
+                            "station_alert_tone",
+                            values,
+                            selection,
+                            selectionArgs);
+                    Log.i(TAG, "New URI: " + uri);
+
+                } else {
+                    Log.i(TAG, "Creating URI");
+                    ContentValues values = new ContentValues();
+                    values.put("id", 1);
+                    values.put("tone_uri", ringTonePath);
+                    long newRowId;
+                    newRowId = dbWrite.insert(
+                            "station_alert_tone",
+                            null,
+                            values);
+                }
+
+            }
+        }
+    }
+
     public void tone(Intent intent) {
         tone = intent.getBooleanExtra("tone", false);
         if (tone) {
@@ -87,23 +157,10 @@ public class MainActivity extends ReactActivity {
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
             ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM);
-            if(uri != null) {
-                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
-            }
+           if(uri != null) {
+               ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
+           }
             startActivityForResult(ringtoneIntent, 999);
-//            int resultCode = new setResult(int);
-            onActivityResult(999, resultCode, ringtoneIntent);
-            if (resultCode == RESULT_OK) {
-                uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-                if (uri != null) {
-                    String ringTonePath = uri.toString();
-                    Log.i(TAG, "Tone: " + ringTonePath);
-//                    RingtoneManager.setActualDefaultRingtoneUri(
-//                            MainActivity,
-//                            RingtoneManager.TYPE_RINGTONE,
-//                            uri);
-                }
-            }
         }
     }
     /**

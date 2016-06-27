@@ -247,9 +247,6 @@ class CalTrainApp extends Component {
     }
   }
 
-//onclick or onslide
-//bring front
-//populate
   _renderList() {
     if (this.state.showList) {
       return (

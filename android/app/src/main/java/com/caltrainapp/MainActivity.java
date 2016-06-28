@@ -38,7 +38,7 @@ public class MainActivity extends ReactActivity {
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
     private static Uri uri;
     final IntentFilter filter = new IntentFilter(MainActivity.MY_FIRST_INTENT);
-    Intent ringtoneIntent;
+    Intent ringtoneIntent = new Intent(this, MainActivity.class);
     StationAlertToneDbHelper mDbHelper = new StationAlertToneDbHelper(this);
     private static Cursor c;
 

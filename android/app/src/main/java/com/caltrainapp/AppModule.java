@@ -132,7 +132,9 @@ public class AppModule extends ReactContextBaseJavaModule {
         MainActivity activity = (MainActivity)getCurrentActivity();
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("tone", tone);
+        Log.i(TAG, "sending intent to activity.tone");
         activity.tone(mServiceIntent);
+        Log.i(TAG, "sent intent to activity.tone");
 
     }
 

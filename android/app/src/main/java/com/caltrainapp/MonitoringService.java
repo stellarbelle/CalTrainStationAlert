@@ -208,9 +208,7 @@ public class MonitoringService extends Service {
         if (intent.hasExtra("vibrateValue")) {
             vibrateValue = intent.getBooleanExtra("vibrateValue", true);
         }
-        Log.i(TAG, "next string Uri");
-        toneUri = intent.getStringExtra("toneUri");
-        Log.i(TAG, "setting Uri value: " + toneUri);
+//        toneUri = intent.getStringExtra("toneUri");
 //        tone = intent.getBooleanExtra("tone", false);
 //        if (tone) {
 //            Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -288,6 +286,10 @@ public class MonitoringService extends Service {
 
             //Sound check if audioValue is true
             if (audioValue) {
+                String[] selectionArgs = {"1"};
+                Cursor ringtoneInfo = Database.readDb(context, "id", "tone_uri", "station_alert_tone", selectionArgs);
+                toneUri = ringtoneInfo.getString(ringtoneInfo.getColumnIndex("tone_uri"));
+                Log.i(TAG, "ringtone cursor info: " + ringtoneInfo);
                 Log.i(TAG, "audio value tone Uri: " + toneUri);
                 builder.setSound(Uri.parse(toneUri));
             }

@@ -9,6 +9,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -40,7 +42,8 @@ public class MonitoringService extends Service {
     private static boolean audioValue = true;
     private static boolean vibrateValue = true;
     private static boolean tone;
-    private static int minuteAlert;
+    private static int minuteAlert = 1;
+    private static String toneUri;
     /** indicates how to behave if the service is killed */
     int mStartMode;
 
@@ -84,7 +87,7 @@ public class MonitoringService extends Service {
                 Log.i(TAG, "Miles: " + distance);
                 Log.i(TAG, "Meters: " + distanceMeters);
 //                Log.i(TAG, "Speed: " + speed);
-//                Log.i(TAG, "Minutes Away: " + minutesAway);
+                Log.i(TAG, "Minutes Away: " + minuteAlert);
 
                 if(distance <= minuteAlert){
 //                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
@@ -182,20 +185,32 @@ public class MonitoringService extends Service {
     /** The service is starting, due to a call to startService() */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "onStartCommand");
+        Log.i(TAG, "intent: " + intent);
+        Log.i(TAG, "next string lat & long");
         if (intent.hasExtra("stationLat") && intent.hasExtra("stationLong")) {
+            Log.i(TAG, "has lat & long");
             stationLat = intent.getStringExtra("stationLat");
+            Log.i(TAG, "lat: " + stationLat);
             stationLong = intent.getStringExtra("stationLong");
+            Log.i(TAG, "long: " + stationLong);
         }
-        if (intent.hasExtra("minuteAlert")) {
+        Log.i(TAG, "next string minute alert");
+        if (intent.hasExtra("minuteAlert")) {;
             minuteAlert = intent.getIntExtra("minuteAlert", 1);
         }
+        Log.i(TAG, "next string audio val");
         if(intent.hasExtra("audioValue")) {
             audioValue = intent.getBooleanExtra("audioValue", true);
         }
+        Log.i(TAG, "next string vib val");
         if (intent.hasExtra("vibrateValue")) {
             vibrateValue = intent.getBooleanExtra("vibrateValue", true);
         }
+        Log.i(TAG, "next string Uri");
+        toneUri = intent.getStringExtra("toneUri");
+        Log.i(TAG, "setting Uri value: " + toneUri);
 //        tone = intent.getBooleanExtra("tone", false);
 //        if (tone) {
 //            Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
@@ -273,7 +288,8 @@ public class MonitoringService extends Service {
 
             //Sound check if audioValue is true
             if (audioValue) {
-                builder.setSound(Uri.parse("android.resource://com.caltrainapp/" + R.raw.elegant_ringtone));
+                Log.i(TAG, "audio value tone Uri: " + toneUri);
+                builder.setSound(Uri.parse(toneUri));
             }
             //                    mp = MediaPlayer.create(MonitoringService.this, R.raw.elegant_ringtone);
             //                    mp.setLooping(true);

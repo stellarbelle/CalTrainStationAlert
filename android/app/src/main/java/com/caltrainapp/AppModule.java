@@ -36,6 +36,8 @@ public class AppModule extends ReactContextBaseJavaModule {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, "onReceive!!!");
+                String toneUri = intent.getStringExtra("toneUri");
+                Log.i(TAG, " received tone Uri: " + toneUri);
                 double distanceMiles = intent.getDoubleExtra("distance", 0);
                 boolean audioValue = intent.getBooleanExtra("audioValue", false);
                 boolean vibrateValue = intent.getBooleanExtra("vibrateValue", false);
@@ -107,7 +109,10 @@ public class AppModule extends ReactContextBaseJavaModule {
         Intent mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
         mServiceIntent.putExtra("stationLong", stationLong);
+        Log.i(TAG, "set lat intent: " + stationLat);
+        Log.i(TAG, "set long intent: " + stationLong);
         activity.startService(mServiceIntent);
+        Log.i(TAG, "intent sent!!!");
 
     }
 

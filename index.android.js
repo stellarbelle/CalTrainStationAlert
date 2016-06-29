@@ -275,12 +275,14 @@ class CalTrainApp extends Component {
     }
   }
   _renderToneMenu() {
-    return (
-      <View>
-        <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
-                onPress={this.showTones.bind(this)}>Pick a Tone</Button>
-      </View>
-    );
+    if(!this.state.showList) {
+      return (
+        <View>
+          <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
+                  onPress={this.showTones.bind(this)}>Pick a Tone</Button>
+        </View>
+      );
+    }
   }
   _renderStation() {
     if(this.state.station && !this.state.showList) {
@@ -288,7 +290,7 @@ class CalTrainApp extends Component {
         <View style={styles.info}>
           <Text style={{fontSize: 16}}>{'\n\n'}Your station is:</Text>
           <Text style={styles.station}>{this.state.station}</Text>
-          <Text>You are { this.state.distance } miles away.</Text>
+          <Text>You are { this.state.distance } minutes away.</Text>
         </View>
       );
     }
@@ -305,7 +307,7 @@ class CalTrainApp extends Component {
         {this._renderMinuteButtons()}
         {this._renderStation()}
       </View>
-    )
+    );
   }
 }
 reactMixin(CalTrainApp.prototype, Subscribable);

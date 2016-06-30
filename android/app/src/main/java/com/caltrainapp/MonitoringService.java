@@ -169,15 +169,21 @@ public class MonitoringService extends Service {
         super.onCreate();
         Log.e(TAG, "onCreate");
         initializeLocationManager();
+        Log.i(TAG, "TRY: ");
         try {
             cal = Calendar.getInstance();
+            Log.i(TAG, "Cal: " + cal);
             lastMSeconds = cal.get(Calendar.MILLISECOND);
-            Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            lastLat = location.getLatitude();
-            lastLong = location.getLongitude();
+            Log.i(TAG, "Last Milliseconds: " + lastMSeconds);
             mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, MINIMUM_TIME_BETWEEN_UPDATES, MINIMUM_DISTANCE_BETWEEN_UPDATES,
                     mLocationListener);
+            Log.i(TAG, "requested location updates");
+            Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Log.i(TAG, "location: " + location);
+            Log.i(TAG, "current Lat: " + location.getLatitude());
+            lastLat = location.getLatitude();
+            lastLong = location.getLongitude();
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);
         } catch (IllegalArgumentException ex) {

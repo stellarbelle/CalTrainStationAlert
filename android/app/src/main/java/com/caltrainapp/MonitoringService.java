@@ -17,6 +17,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -181,6 +182,17 @@ public class MonitoringService extends Service {
             Log.i(TAG, "requested location updates");
             Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Log.i(TAG, "location: " + location);
+            if (location == null) {
+                Context context = getApplicationContext();
+                CharSequence text = "Cannot get current location. Please enable GPS and restart Station Alert.";
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
             Log.i(TAG, "current Lat: " + location.getLatitude());
             lastLat = location.getLatitude();
             lastLong = location.getLongitude();

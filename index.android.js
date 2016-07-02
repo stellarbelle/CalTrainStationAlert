@@ -1,8 +1,6 @@
 //react-native run-android & react-native start
 //adb logcat *:S ReactNative:V ReactNativeJS:V TestingActivity:V TestingService:V AppModule:V
-//adb reverse tcp:8081 tcp:8081
 //react-native-radio-buttons\lib\segmented-controls.js
-//#009385, #abdddb
 
 import {
   AppRegistry,
@@ -27,7 +25,11 @@ import Sound from 'react-native-sound';
 import SettingsList from 'react-native-settings-list';
 import Subscribable from 'Subscribable';
 import reactMixin from 'react-mixin';
-import Radio, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
+import Radio, {
+  RadioButton, 
+  RadioButtonInput, 
+  RadioButtonLabel
+} from 'react-native-simple-radio-button';
 
 var { width, height } = Dimensions.get('window');
 
@@ -46,9 +48,7 @@ class CalTrainApp extends Component {
       alert: false,
       minuteSelected: 1,
       value: 0,
-      oneMin: true,
-      threeMin: false,
-      fiveMin: false
+      // selected: 'oneMin'
     };
   }
 
@@ -67,37 +67,31 @@ class CalTrainApp extends Component {
   }
 
   
-  onSelectMinutes(index) {
-    if (index == 1) {
-      this.setState({
-        minuteSelected: 1,
-        oneMin: true,
-        threeMin: false,
-        fiveMin: false
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected); 
-    } else if (index == 3) {
-      this.setState({
-        minuteSelected: 3,
-        threeMin: true,
-        fiveMin: false,
-        oneMin: false
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected);
-    } else {
-      this.setState({
-        minuteSelected: 5,
-        fiveMin: true,
-        threeMin: false,
-        oneMin: false,
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected);
-    }
-    console.log("onSelect index ", index)
-  }
+  // onSelectMinutes(index) {
+  //   if (index == 1) {
+  //     this.setState({
+  //       minuteSelected: 1,
+  //       selected: 'oneMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected); 
+  //   } else if (index == 3) {
+  //     this.setState({
+  //       minuteSelected: 3,
+  //       selected: 'threeMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
+  //   } else {
+  //     this.setState({
+  //       minuteSelected: 5,
+  //       selected: 'fiveMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
+  //   }
+  //   console.log("onSelect index ", index)
+  // }
 
   setLatAndLong(station){
     this.setState({
@@ -188,61 +182,66 @@ class CalTrainApp extends Component {
     if (!this.state.showList) {
       return(
         <View style={styles.warningButtons}>
-          <RadioButton>
-            <RadioButtonInput 
-                onPress={this.onSelectMinutes.bind(this)}
-                buttonOuterColor='#abdddb' 
-                buttonInnerColor='#009385'
-                buttonSize={13}
-                index={0}
-                obj={{value: '1'}}
-                isSelected={this.state.oneMin}
-            />
-            <RadioButtonLabel 
-                onPress={this.onSelectMinutes.bind(this)}
-                labelColor='grey'
-                index={0}
-                obj={{label: '  1 Minute Warning', value: '1'}} 
-            >
-            </RadioButtonLabel>
-          </RadioButton>
-          <RadioButton>
-            <RadioButtonInput 
-                onPress={this.onSelectMinutes.bind(this)}
-                buttonOuterColor='#abdddb' 
-                buttonInnerColor='#009385'
-                buttonSize={13}
-                index={1}
-                obj={{value: '3'}}
-                isSelected={this.state.threeMin} 
-            />
-            <RadioButtonLabel 
-                onPress={this.onSelectMinutes.bind(this)}
-                labelColor='grey'
-                index={1}
-                obj={{label: '  3 Minute Warning', value: '3'}} 
-            >
-            </RadioButtonLabel>
-          </RadioButton>
-          <RadioButton>
-            <RadioButtonInput 
-                onPress={this.onSelectMinutes.bind(this)}
-                buttonOuterColor='#abdddb' 
-                buttonInnerColor='#009385'
-                buttonSize={13}
-                index={2}
-                obj={{value: '5'}}
-                isSelected={this.state.fiveMin}
-            />
-            <RadioButtonLabel 
-                onPress={this.onSelectMinutes.bind(this)}
-                labelColor='grey'
-                index={2}
-                obj={{label: '  5 Minute Warning', value: '5'}} 
-            >
-            </RadioButtonLabel>
-          </RadioButton>
+          <MyButton index={0} isSelected="this.state.selected === 'oneMin'" inputObj={{value: '1'}} labelObj={{label: '  1 Minute Warning', value: '1'}}/>
+          <MyButton index={1} isSelected="this.state.selected === 'threeMin'" inputObj={{value: '3'}} labelObj={{label: '  3 Minute Warning', value: '3'}}/>
+          <MyButton index={2} isSelected="this.state.selected === 'fiveMin'" inputObj={{value: '5'}} labelObj={{label: '  5 Minute Warning', value: '5'}}/>
         </View>
+        // <View style={styles.warningButtons}>
+        //   <RadioButton>
+        //     <RadioButtonInput 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         buttonOuterColor='#abdddb' 
+        //         buttonInnerColor='#009385'
+        //         buttonSize={13}
+        //         index={0}
+        //         obj={{value: '1'}}
+        //         isSelected={this.state.selected === 'oneMin'}
+        //     />
+        //     <RadioButtonLabel 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         labelColor='grey'
+        //         index={0}
+        //         obj={{label: '  1 Minute Warning', value: '1'}} 
+        //     >
+        //     </RadioButtonLabel>
+        //   </RadioButton>
+        //   <RadioButton>
+        //     <RadioButtonInput 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         buttonOuterColor='#abdddb' 
+        //         buttonInnerColor='#009385'
+        //         buttonSize={13}
+        //         index={1}
+        //         obj={{value: '3'}}
+        //         isSelected={this.state.selected === 'threeMin'} 
+        //     />
+        //     <RadioButtonLabel 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         labelColor='grey'
+        //         index={1}
+        //         obj={{label: '  3 Minute Warning', value: '3'}} 
+        //     >
+        //     </RadioButtonLabel>
+        //   </RadioButton>
+        //   <RadioButton>
+        //     <RadioButtonInput 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         buttonOuterColor='#abdddb' 
+        //         buttonInnerColor='#009385'
+        //         buttonSize={13}
+        //         index={2}
+        //         obj={{value: '5'}}
+        //         isSelected={this.state.selected === 'fiveMin'}
+        //     />
+        //     <RadioButtonLabel 
+        //         onPress={this.onSelectMinutes.bind(this)}
+        //         labelColor='grey'
+        //         index={2}
+        //         obj={{label: '  5 Minute Warning', value: '5'}} 
+        //     >
+        //     </RadioButtonLabel>
+        //   </RadioButton>
+        // </View>
       );
     }
   }
@@ -258,7 +257,8 @@ class CalTrainApp extends Component {
                   return stop.name
                 }) 
               }
-              tint={'steelblue'}
+              tint={'#009385'}
+              selectedTint={'#abdddb'}
               onSelection={ this.setLatAndLong.bind(this) }
               selectedOption={ this.state.station }
               direction={ 'column' }
@@ -278,7 +278,7 @@ class CalTrainApp extends Component {
     if(!this.state.showList) {
       return (
         <View>
-          <Button containerStyle={styles.menu} style={{color: 'white', fontSize: 14}}
+          <Button containerStyle={styles.menu} style={{color: '#abdddb', fontSize: 14}}
                   onPress={this.showTones.bind(this)}>Pick a Tone</Button>
         </View>
       );
@@ -312,19 +312,89 @@ class CalTrainApp extends Component {
 }
 reactMixin(CalTrainApp.prototype, Subscribable);
 
-class Item extends Component {
-  constructor(props) {
+// class Item extends Component {
+//   constructor(props) {
+//     super(props);
+//   }
+
+//   render() {
+//     var { title, description } = this.props;
+
+//     return (
+//       <View style={{ paddingLeft: 8 }}>
+//         <Text style={styles.title}>{ title }</Text>
+//         <Text style={styles.description}>{ description }</Text>
+//       </View>
+//     );
+//   }
+// }
+
+class MyButton extends Component {
+    constructor(props) {
     super(props);
+    this.state = {
+      minuteSelected: 1,
+      selected: 'oneMin',
+    };
+  }
+
+  onSelectMinutes(index) {
+    if (index == 1) {
+      this.setState({
+        minuteSelected: 1,
+        selected: 'oneMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected); 
+    } else if (index == 3) {
+      this.setState({
+        minuteSelected: 3,
+        selected: 'threeMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
+    } else {
+      this.setState({
+        minuteSelected: 5,
+        selected: 'fiveMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
+    }
+    console.log("onSelect index ", index)
   }
 
   render() {
-    var { title, description } = this.props;
+  //   var { title, description } = this.props;
+       // if (this.props.index == 0) {
+       //  this.state.selected = 'this.state.oneMin'
+       // } else if (this.props.index == 1) {
+       //  this.state.selected = 'this.state.threeMin'
+       // } else {
+       //  this.state.selected = 'this.state.fiveMin'
+       // }
 
     return (
-      <View style={{ paddingLeft: 8 }}>
-        <Text style={styles.title}>{ title }</Text>
-        <Text style={styles.description}>{ description }</Text>
-      </View>
+      // <View style={styles.warningButtons}>
+        <RadioButton>
+            <RadioButtonInput 
+                onPress={this.onSelectMinutes.bind(this)}
+                buttonOuterColor='#abdddb' 
+                buttonInnerColor='#009385'
+                buttonSize={13}
+                index={this.props.index}
+                obj={this.props.inputObj}
+                isSelected='this.props.isSelected'
+            />
+            <RadioButtonLabel 
+                onPress={this.onSelectMinutes.bind(this)}
+                labelColor='grey'
+                index={this.props.index}
+                obj={this.props.labelObj} 
+            >
+            </RadioButtonLabel>
+          </RadioButton>
+      // </View>
     );
   }
 }
@@ -332,10 +402,7 @@ class Item extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    // marginTop: 90
   },
   overlay: {
     flex: 1,
@@ -348,11 +415,15 @@ const styles = StyleSheet.create({
     height: height
   },
   menu: {
-    top: 0,
+    top: 10,
     position: 'absolute',
-    height: 20,
-    backgroundColor: 'grey',
-    width: width
+    height: 25,
+    borderColor: '#abdddb',
+    borderWidth: 2,
+    borderRadius: 5,
+    marginLeft: 10,
+    backgroundColor: '#009385',
+    width: width - 20
   },
   buttons: {
     width:200,
@@ -360,7 +431,7 @@ const styles = StyleSheet.create({
     height:45, 
     overflow:'hidden', 
     borderRadius:4, 
-    backgroundColor: 'firebrick'
+    backgroundColor: '#cd5c5c'
   },
   stationList: {
     marginTop: 0,
@@ -369,14 +440,14 @@ const styles = StyleSheet.create({
   },
   station: {
     fontSize: 18,
-    color: 'steelblue',
+    color: '#009385',
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 10,
     marginBottom: 10
   },
   switchBlock: {
-    marginTop: 90,
+    marginTop: 100,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row'

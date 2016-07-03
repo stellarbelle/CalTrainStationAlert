@@ -48,7 +48,7 @@ class CalTrainApp extends Component {
       alert: false,
       minuteSelected: 1,
       value: 0,
-      // selected: 'oneMin'
+      selected: 'oneMin'
     };
   }
 
@@ -67,31 +67,31 @@ class CalTrainApp extends Component {
   }
 
   
-  // onSelectMinutes(index) {
-  //   if (index == 1) {
-  //     this.setState({
-  //       minuteSelected: 1,
-  //       selected: 'oneMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected); 
-  //   } else if (index == 3) {
-  //     this.setState({
-  //       minuteSelected: 3,
-  //       selected: 'threeMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
-  //   } else {
-  //     this.setState({
-  //       minuteSelected: 5,
-  //       selected: 'fiveMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
-  //   }
-  //   console.log("onSelect index ", index)
-  // }
+  onSelectMinutes(index) {
+    if (index == 1) {
+      this.setState({
+        minuteSelected: 1,
+        selected: 'oneMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected); 
+    } else if (index == 3) {
+      this.setState({
+        minuteSelected: 3,
+        selected: 'threeMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
+    } else {
+      this.setState({
+        minuteSelected: 5,
+        selected: 'fiveMin',
+      });
+      console.log("index: ",index)
+      AppAndroid.setMinuteAlert(this.state.minuteSelected);
+    }
+    console.log("onSelect index ", index)
+  }
 
   setLatAndLong(station){
     this.setState({
@@ -178,70 +178,58 @@ class CalTrainApp extends Component {
     }
   }
 
+  // onSelectMinutes(index, isSelected) {
+  //   if (index == 1) {
+  //     this.setState({
+  //       minuteSelected: 1,
+  //       selected: 'oneMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected); 
+  //   } else if (index == 3) {
+  //     this.setState({
+  //       minuteSelected: 3,
+  //       selected: 'threeMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
+  //   } else {
+  //     this.setState({
+  //       minuteSelected: 5,
+  //       selected: 'fiveMin',
+  //     });
+  //     console.log("index: ",index)
+  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
+  //   }
+  //   console.log("onSelect index ", index)
+  // }
+
   _renderMinuteButtons() {
     if (!this.state.showList) {
+      console.log("isSelectedButtons: " + this.state.selected === 'oneMin');
       return(
         <View style={styles.warningButtons}>
-          <MyButton index={0} isSelected="this.state.selected === 'oneMin'" inputObj={{value: '1'}} labelObj={{label: '  1 Minute Warning', value: '1'}}/>
-          <MyButton index={1} isSelected="this.state.selected === 'threeMin'" inputObj={{value: '3'}} labelObj={{label: '  3 Minute Warning', value: '3'}}/>
-          <MyButton index={2} isSelected="this.state.selected === 'fiveMin'" inputObj={{value: '5'}} labelObj={{label: '  5 Minute Warning', value: '5'}}/>
+          <MyButton 
+              index={0} 
+              onSelect={this.onSelectMinutes.bind(this)}
+              isSelected={this.state.selected === 'oneMin'} 
+              inputObj={{value: 1}} 
+              labelObj={{label: '  1 Minute Warning', value: '1'}}
+          />
+          <MyButton 
+              index={1}
+              onSelect={this.onSelectMinutes.bind(this)} 
+              isSelected={this.state.selected === 'threeMin'} 
+              inputObj={{value: 3}} 
+              labelObj={{label: '  3 Minute Warning', value: '3'}}
+          />
+          <MyButton 
+              index={2} 
+              onSelect={this.onSelectMinutes.bind(this)}
+              isSelected={this.state.selected === 'fiveMin'} 
+              inputObj={{value: 5}} 
+              labelObj={{label: '  5 Minute Warning', value: '5'}}/>
         </View>
-        // <View style={styles.warningButtons}>
-        //   <RadioButton>
-        //     <RadioButtonInput 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         buttonOuterColor='#abdddb' 
-        //         buttonInnerColor='#009385'
-        //         buttonSize={13}
-        //         index={0}
-        //         obj={{value: '1'}}
-        //         isSelected={this.state.selected === 'oneMin'}
-        //     />
-        //     <RadioButtonLabel 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         labelColor='grey'
-        //         index={0}
-        //         obj={{label: '  1 Minute Warning', value: '1'}} 
-        //     >
-        //     </RadioButtonLabel>
-        //   </RadioButton>
-        //   <RadioButton>
-        //     <RadioButtonInput 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         buttonOuterColor='#abdddb' 
-        //         buttonInnerColor='#009385'
-        //         buttonSize={13}
-        //         index={1}
-        //         obj={{value: '3'}}
-        //         isSelected={this.state.selected === 'threeMin'} 
-        //     />
-        //     <RadioButtonLabel 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         labelColor='grey'
-        //         index={1}
-        //         obj={{label: '  3 Minute Warning', value: '3'}} 
-        //     >
-        //     </RadioButtonLabel>
-        //   </RadioButton>
-        //   <RadioButton>
-        //     <RadioButtonInput 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         buttonOuterColor='#abdddb' 
-        //         buttonInnerColor='#009385'
-        //         buttonSize={13}
-        //         index={2}
-        //         obj={{value: '5'}}
-        //         isSelected={this.state.selected === 'fiveMin'}
-        //     />
-        //     <RadioButtonLabel 
-        //         onPress={this.onSelectMinutes.bind(this)}
-        //         labelColor='grey'
-        //         index={2}
-        //         obj={{label: '  5 Minute Warning', value: '5'}} 
-        //     >
-        //     </RadioButtonLabel>
-        //   </RadioButton>
-        // </View>
       );
     }
   }
@@ -312,23 +300,6 @@ class CalTrainApp extends Component {
 }
 reactMixin(CalTrainApp.prototype, Subscribable);
 
-// class Item extends Component {
-//   constructor(props) {
-//     super(props);
-//   }
-
-//   render() {
-//     var { title, description } = this.props;
-
-//     return (
-//       <View style={{ paddingLeft: 8 }}>
-//         <Text style={styles.title}>{ title }</Text>
-//         <Text style={styles.description}>{ description }</Text>
-//       </View>
-//     );
-//   }
-// }
-
 class MyButton extends Component {
     constructor(props) {
     super(props);
@@ -338,63 +309,29 @@ class MyButton extends Component {
     };
   }
 
-  onSelectMinutes(index) {
-    if (index == 1) {
-      this.setState({
-        minuteSelected: 1,
-        selected: 'oneMin',
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected); 
-    } else if (index == 3) {
-      this.setState({
-        minuteSelected: 3,
-        selected: 'threeMin',
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected);
-    } else {
-      this.setState({
-        minuteSelected: 5,
-        selected: 'fiveMin',
-      });
-      console.log("index: ",index)
-      AppAndroid.setMinuteAlert(this.state.minuteSelected);
-    }
-    console.log("onSelect index ", index)
-  }
-
   render() {
-  //   var { title, description } = this.props;
-       // if (this.props.index == 0) {
-       //  this.state.selected = 'this.state.oneMin'
-       // } else if (this.props.index == 1) {
-       //  this.state.selected = 'this.state.threeMin'
-       // } else {
-       //  this.state.selected = 'this.state.fiveMin'
-       // }
+    var { index, onSelect, isSelected, inputObj, labelObj } = this.props;
+
 
     return (
-      // <View style={styles.warningButtons}>
-        <RadioButton>
-            <RadioButtonInput 
-                onPress={this.onSelectMinutes.bind(this)}
-                buttonOuterColor='#abdddb' 
-                buttonInnerColor='#009385'
-                buttonSize={13}
-                index={this.props.index}
-                obj={this.props.inputObj}
-                isSelected='this.props.isSelected'
-            />
-            <RadioButtonLabel 
-                onPress={this.onSelectMinutes.bind(this)}
-                labelColor='grey'
-                index={this.props.index}
-                obj={this.props.labelObj} 
-            >
-            </RadioButtonLabel>
-          </RadioButton>
-      // </View>
+      <RadioButton>
+        <RadioButtonInput 
+            onPress={onSelect}
+            buttonOuterColor='#abdddb' 
+            buttonInnerColor='#009385'
+            buttonSize={13}
+            index={index}
+            obj={inputObj}
+            isSelected={isSelected}
+        />
+        <RadioButtonLabel 
+            onPress={onSelect}
+            labelColor='grey'
+            index={index}
+            obj={labelObj} 
+        >
+        </RadioButtonLabel>
+      </RadioButton>
     );
   }
 }

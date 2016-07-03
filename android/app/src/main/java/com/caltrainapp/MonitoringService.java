@@ -192,10 +192,11 @@ public class MonitoringService extends Service {
                 intent.addCategory(Intent.CATEGORY_HOME);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+            } else {
+                Log.i(TAG, "current Lat: " + location.getLatitude());
+                lastLat = location.getLatitude();
+                lastLong = location.getLongitude();
             }
-            Log.i(TAG, "current Lat: " + location.getLatitude());
-            lastLat = location.getLatitude();
-            lastLong = location.getLongitude();
         } catch (java.lang.SecurityException ex) {
             Log.i(TAG, "fail to request location update, ignore", ex);
         } catch (IllegalArgumentException ex) {

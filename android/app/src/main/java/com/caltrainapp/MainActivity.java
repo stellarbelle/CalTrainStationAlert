@@ -59,6 +59,7 @@ public class MainActivity extends ReactActivity {
         this.startActivity(intent);
     }
 
+    Database db = new Database();
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -66,7 +67,7 @@ public class MainActivity extends ReactActivity {
             uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
                 String[] selectionArgs = {"1"};
-                c = Database.readDb(this, "id", "tone_uri", "station_alert_tone", selectionArgs);
+                c = db.readDb(this, "id", "tone_uri", "station_alert_tone", selectionArgs);
                 String ringTonePath = uri.toString();
                 RingtoneManager.setActualDefaultRingtoneUri(
                         this,

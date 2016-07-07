@@ -10,7 +10,6 @@ public class Database {
     private static final String TAG = "DatabaseClass";
     private static DbHelper mDbHelper;
     private static ContentValues values;
-    private static Cursor c;
 
     public static void updateDb(Context context,String key_title, String title, String table_name, String [] selectionArgs) {
         mDbHelper = new DbHelper(context);
@@ -37,7 +36,6 @@ public class Database {
                 null,
                 values);
         dbWrite.close();
-
     }
 
     public static Cursor readDb(Context context, String _id, String column_title, String table_name, String [] selectionArgs) {
@@ -48,7 +46,7 @@ public class Database {
                 column_title,
 
         };
-        c = dbRead.query(
+        Cursor c = dbRead.query(
                 table_name,
                 projection,
                 "id = ?",

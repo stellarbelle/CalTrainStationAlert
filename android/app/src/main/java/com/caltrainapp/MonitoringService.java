@@ -19,9 +19,6 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
 
 public class MonitoringService extends Service {
 
@@ -40,9 +37,9 @@ public class MonitoringService extends Service {
     public static double lastLong;
     public static double currentLat;
     public static double currentLong;
-    public static int lastMSeconds;
-    public static int currentMSeconds;
-    Calendar cal;
+    public static long lastMSeconds;
+    public static long currentMSeconds;
+//    Calendar cal;
     LocationListener mLocationListener = new LocationListener(LocationManager.GPS_PROVIDER);
 
     IBinder mBinder;
@@ -76,25 +73,23 @@ public class MonitoringService extends Service {
                 currentLat = location.getLatitude();
                 currentLong = location.getLongitude();
                 double distChange = calculateDistance(lastLat, lastLong, currentLat, currentLong); //km
-                cal = Calendar.getInstance();
-                currentMSeconds = cal.get(Calendar.MILLISECOND);
-                int timeChange = currentMSeconds - lastMSeconds;
+                currentMSeconds = java.lang.System.currentTimeMillis();
+                Log.i(TAG, "Last time checked: " + lastMSeconds + " Current time: " + currentMSeconds);
+                long timeChange = currentMSeconds - lastMSeconds;
 
                 lastMSeconds = currentMSeconds;
                 lastLat = currentLat;
                 lastLong = currentLong;
-                float distanceMeters = location.distanceTo(destLocation);
+                double distanceMeters = location.distanceTo(destLocation);
 //                double distance = distanceMeters/1609.344;
                 Intent myBroadcastIntent = new Intent(MY_FIRST_INTENT);
 
                 PendingIntent pIntent = PendingIntent.getActivity(MonitoringService.this, (int) System.currentTimeMillis(), myBroadcastIntent, 0);
-                double speed = (distChange*1000)/(timeChange); // meters/milisecond
                 Log.i(TAG, "distance change in meters: " + distChange);
                 Log.i(TAG, "time change in seconds: " + timeChange);
-                Log.i(TAG, "SPEED!!! " + speed);
-                double mSecondsAway = distanceMeters/speed; //milliseconds
+//                Log.i(TAG, "SPEED!!! " + speed);
+                double minutesAway = getMinutesAway((distChange*1000), timeChange, distanceMeters);
 //                Log.i(TAG, "mSecondsAway: " + mSecondsAway);
-                double minutesAway = (mSecondsAway/1000)/60;
                 Log.i(TAG, "Minutes Away: " + minutesAway);
 //                long secondsAway = (mSecondsAway/1000)%60;
 //                Log.i(TAG, "time until destination: " + mSecondsAway);
@@ -104,6 +99,7 @@ public class MonitoringService extends Service {
 //                Log.i(TAG, "Minutes Away: " + minuteAlert);
 
                 if(minutesAway <= minuteAlert){
+                    Log.i(TAG, "minutesAway check: " + minutesAway);
                     String currentText = "Get ready! Your stop is in " + String.format("%.1f", minutesAway) + " minutes!";
                     mBuilder.setContentText(currentText);
                     mBuilder.setContentTitle("Alert! Your stop is next!");
@@ -165,6 +161,15 @@ public class MonitoringService extends Service {
         }
     }
 
+
+    public double getMinutesAway(double distChange, long timeChange, double distanceMeters) {
+        Log.i(TAG, "distChange: " + distChange + " time change: " + timeChange + " distanceMeters: " + distanceMeters);
+        double speed = distChange/timeChange; // meters/milisecond
+        double mSecondsAway = distanceMeters/speed; //milliseconds
+        double minutesAway = (mSecondsAway/1000)/60;
+        return minutesAway;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -172,9 +177,7 @@ public class MonitoringService extends Service {
         initializeLocationManager();
         Log.i(TAG, "TRY: ");
         try {
-            cal = Calendar.getInstance();
-            Log.i(TAG, "Cal: " + cal);
-            lastMSeconds = cal.get(Calendar.MILLISECOND);
+            lastMSeconds = java.lang.System.currentTimeMillis();
             Log.i(TAG, "Last Milliseconds: " + lastMSeconds);
             mLocationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, MINIMUM_TIME_BETWEEN_UPDATES, MINIMUM_DISTANCE_BETWEEN_UPDATES,
@@ -193,6 +196,7 @@ public class MonitoringService extends Service {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             } else {
+                Intent intent = new Intent();
                 Log.i(TAG, "current Lat: " + location.getLatitude());
                 lastLat = location.getLatitude();
                 lastLong = location.getLongitude();
@@ -239,7 +243,6 @@ public class MonitoringService extends Service {
         if (intent.hasExtra("vibrateValue")) {
             vibrateValue = intent.getBooleanExtra("vibrateValue", true);
         }
-
         String action = intent.getAction();
         if (ACTION_1.equals(action)) {
             // If you want to cancel the notification: NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
@@ -250,8 +253,7 @@ public class MonitoringService extends Service {
             //android.os.Process.killProcess(android.os.Process.myPid());
             //System.exit(1);
         }
-
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     @Override

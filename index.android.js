@@ -178,32 +178,6 @@ class CalTrainApp extends Component {
     }
   }
 
-  // onSelectMinutes(index, isSelected) {
-  //   if (index == 1) {
-  //     this.setState({
-  //       minuteSelected: 1,
-  //       selected: 'oneMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected); 
-  //   } else if (index == 3) {
-  //     this.setState({
-  //       minuteSelected: 3,
-  //       selected: 'threeMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
-  //   } else {
-  //     this.setState({
-  //       minuteSelected: 5,
-  //       selected: 'fiveMin',
-  //     });
-  //     console.log("index: ",index)
-  //     AppAndroid.setMinuteAlert(this.state.minuteSelected);
-  //   }
-  //   console.log("onSelect index ", index)
-  // }
-
   _renderMinuteButtons() {
     if (!this.state.showList) {
       console.log("isSelectedButtons: " + this.state.selected === 'oneMin');
@@ -278,11 +252,26 @@ class CalTrainApp extends Component {
         <View style={styles.info}>
           <Text style={{fontSize: 16}}>{'\n\n'}Your station is:</Text>
           <Text style={styles.station}>{this.state.station}</Text>
-          <Text>You are { this.state.distance } minutes away.</Text>
+          {this._renderDistance()}
         </View>
       );
     }
   } 
+  _renderDistance() {
+    if(this.state.distance) {
+      return(
+        <View style={styles.info}>
+          <Text>You are { this.state.distance } minutes away.</Text>
+        </View>
+      );
+    } else {
+      return(
+        <View style={styles.info}>
+          <Text>You are on your way!</Text>
+        </View>
+      );
+    }
+  }
 
   render() {
     return (
@@ -303,10 +292,6 @@ reactMixin(CalTrainApp.prototype, Subscribable);
 class MyButton extends Component {
     constructor(props) {
     super(props);
-    this.state = {
-      minuteSelected: 1,
-      selected: 'oneMin',
-    };
   }
 
   render() {

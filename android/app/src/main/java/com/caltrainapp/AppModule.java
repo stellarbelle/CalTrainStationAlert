@@ -34,7 +34,8 @@ public class AppModule extends ReactContextBaseJavaModule {
             public void onReceive(Context context, Intent intent) {
                 double distanceMin = intent.getDoubleExtra("distance", 0);
                 WritableMap params = Arguments.createMap();
-                String distance = Double.toString(distanceMin);
+                String distance = String.format("%.2f", distanceMin);
+                // String distance = Double.toString(distanceMin);
                 Log.i(TAG, "distanceMin: " + distanceMin);
                 Log.i(TAG, "distance string: " + distance);
                 params.putString("distance", distance);

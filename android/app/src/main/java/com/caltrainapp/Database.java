@@ -9,44 +9,40 @@ import android.util.Log;
 public class Database {
     private static final String TAG = "DatabaseClass";
     private static DbHelper mDbHelper;
+    private static SQLiteDatabase db;
     private static ContentValues values;
 
     public static void updateDb(Context context,String key_title, String title, String table_name, String [] selectionArgs) {
-        mDbHelper = new DbHelper(context);
-        SQLiteDatabase dbUpdate = mDbHelper.getReadableDatabase();
-        values = new ContentValues();
+        db = mDbHelper.getReadableDatabase();
         values.put(key_title, title);
         String selection = "id" + " LIKE ?";
-        dbUpdate.update(
+        db.update(
                 table_name,
                 values,
                 selection,
                 selectionArgs);
-        dbUpdate.close();
+        db.close();
     }
 
     public static void createRow(Context context, String column_id, int id, String column_title, String title, String table_name) {
-        mDbHelper = new DbHelper(context);
-        SQLiteDatabase dbWrite = mDbHelper.getWritableDatabase();
-        values = new ContentValues();
+        db = mDbHelper.getWritableDatabase();
         values.put(column_id, id);
         values.put(column_title, title);
-        dbWrite.insert(
+        db.insert(
                 table_name,
                 null,
                 values);
-        dbWrite.close();
+        db.close();
     }
 
     public static Cursor readDb(Context context, String _id, String column_title, String table_name, String [] selectionArgs) {
-        mDbHelper = new DbHelper(context);
-        SQLiteDatabase dbRead = mDbHelper.getReadableDatabase();
+        db = mDbHelper.getReadableDatabase();
         String[] projection = {
                 _id,
                 column_title,
 
         };
-        Cursor c = dbRead.query(
+        Cursor c = db.query(
                 table_name,
                 projection,
                 "id = ?",

@@ -21,18 +21,15 @@ import java.util.List;
 
 public class MainActivity extends ReactActivity {
     private static final String TAG = "TestingActivity";
-    private BroadcastReceiver receiver;
-    private static boolean tone;
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
     private static Uri uri;
     final IntentFilter filter = new IntentFilter(MainActivity.MY_FIRST_INTENT);
-    private static Cursor c;
     private static int minuteAlert = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        receiver = new BroadcastReceiver(){
+        BroadcastReceiver receiver = new BroadcastReceiver(){
             @Override
             public void onReceive(Context context,Intent intent){
                 double distanceMin=intent.getDoubleExtra("distance",0);
@@ -67,7 +64,7 @@ public class MainActivity extends ReactActivity {
             uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
                 String[] selectionArgs = {"1"};
-                c = db.readDb(this, "id", "tone_uri", "station_alert_tone", selectionArgs);
+                Cursor c = db.readDb(this, "id", "tone_uri", "station_alert_tone", selectionArgs);
                 String ringTonePath = uri.toString();
                 RingtoneManager.setActualDefaultRingtoneUri(
                         this,
@@ -83,19 +80,16 @@ public class MainActivity extends ReactActivity {
         }
     }
 
-    public void tone(Intent intent) {
-        tone = intent.getBooleanExtra("tone", false);
-        if (tone) {
-            Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
-            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
-            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
-            ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-           if(uri != null) {
-               ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
-           }
-            startActivityForResult(ringtoneIntent, 999);
-        }
+    public void tone() {
+        Intent ringtoneIntent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+        ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone");
+        ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
+        ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
+        ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+       if(uri != null) {
+           ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
+       }
+        startActivityForResult(ringtoneIntent, 999);
     }
 
     @Override

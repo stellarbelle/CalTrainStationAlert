@@ -1,6 +1,5 @@
 //react-native run-android & react-native start
 //adb logcat *:S ReactNative:V ReactNativeJS:V TestingActivity:V TestingService:V AppModule:V
-//react-native-radio-buttons\lib\segmented-controls.js
 
 import {
   AppRegistry,
@@ -144,7 +143,7 @@ class CalTrainApp extends Component {
   }
 
   showTones() {
-    AppAndroid.setTone(true);
+    AppAndroid.setTone();
   }
 
   _renderSwitch() {

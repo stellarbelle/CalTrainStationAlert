@@ -30,16 +30,17 @@ public class MonitoringService extends Service {
     private static final float MINIMUM_DISTANCE_BETWEEN_UPDATES = 1;
     private String stationLat;
     private String stationLong;
-    private static String toneUri;
-    private static boolean audioValue = true;
-    private static boolean vibrateValue = true;
-    private static int minuteAlert = 1;
-    public static double lastLat;
-    public static double lastLong;
-    public static double currentLat;
-    public static double currentLong;
-    public static long lastMSeconds;
-    public static long currentMSeconds;
+    private String toneUri;
+    private boolean audioValue = true;
+    private boolean vibrateValue = true;
+    private int minuteAlert = 1;
+    public double lastLat;
+    public double lastLong;
+    public double currentLat;
+    public double currentLong;
+    public long lastMSeconds;
+    public long currentMSeconds;
+    Database db;
     LocationListener mLocationListener = new LocationListener(LocationManager.GPS_PROVIDER);
     IBinder mBinder;
     boolean mAllowRebind;
@@ -48,6 +49,11 @@ public class MonitoringService extends Service {
     int mNotificationId;
 
     public static final String ACTION_1 = "action_1";
+    public static final int NOTIFICATION_ID = 1;
+
+    public MonitoringService() {
+        db = new Database(this);
+    }
 
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
@@ -86,7 +92,7 @@ public class MonitoringService extends Service {
                     mBuilder.setContentText(currentText);
                     mBuilder.setContentTitle("Alert! Your stop is next!");
                     mBuilder.setContentIntent(pIntent);
-                    NotificationUtils.displayNotification(mBuilder.mContext, mBuilder);
+                    displayNotification(mBuilder.mContext, mBuilder);
                 } else {
                     String currentText = "You are " + String.format("%.1f", minutesAway) + " minutes away.";
                     mBuilder.setContentText(currentText);
@@ -240,37 +246,30 @@ public class MonitoringService extends Service {
         }
     }
 
+    public void displayNotification(Context context, NotificationCompat.Builder builder) {
 
-    public static class NotificationUtils {
-        public static final int NOTIFICATION_ID = 1;
+        Intent action1Intent = new Intent(context, MonitoringService.class)
+                .setAction(ACTION_1);
 
-        public static final String ACTION_1 = "action_1";
+        PendingIntent action1PendingIntent = PendingIntent.getService(context, 0,
+                action1Intent, PendingIntent.FLAG_ONE_SHOT);
 
-        public static void displayNotification(Context context, NotificationCompat.Builder builder) {
-
-            Intent action1Intent = new Intent(context, MonitoringService.class)
-                    .setAction(ACTION_1);
-
-            PendingIntent action1PendingIntent = PendingIntent.getService(context, 0,
-                    action1Intent, PendingIntent.FLAG_ONE_SHOT);
-
-            builder.addAction(new NotificationCompat.Action(0, "Close", action1PendingIntent));
-            if (audioValue) {
-                String[] selectionArgs = {"1"};
-                Cursor ringtoneInfo = Database.readDb(context, "id", "tone_uri", "station_alert_tone", selectionArgs);
-                String uri = ringtoneInfo.getString(ringtoneInfo.getColumnIndex("tone_uri"));
-                if (uri != null) {
-                    toneUri = uri;
-                }
-                builder.setSound(Uri.parse(toneUri));
+        builder.addAction(new NotificationCompat.Action(0, "Close", action1PendingIntent));
+        if (audioValue) {
+            String[] selectionArgs = {"1"};
+            Cursor ringtoneInfo = db.readDb(context, "id", "tone_uri", "station_alert_tone", selectionArgs);
+            String uri = ringtoneInfo.getString(ringtoneInfo.getColumnIndex("tone_uri"));
+            if (uri != null) {
+                toneUri = uri;
             }
-            if (vibrateValue) {
-                builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
-            }
-            builder.setLights(Color.CYAN, 3000, 3000);
-            builder.mNotification.flags |= Notification.FLAG_INSISTENT;
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            notificationManager.notify(NOTIFICATION_ID, builder.build());
+            builder.setSound(Uri.parse(toneUri));
         }
+        if (vibrateValue) {
+            builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+        }
+        builder.setLights(Color.CYAN, 3000, 3000);
+        builder.mNotification.flags |= Notification.FLAG_INSISTENT;
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 }

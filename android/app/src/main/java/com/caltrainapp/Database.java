@@ -4,16 +4,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 public class Database {
     private static final String TAG = "DatabaseClass";
-    private static DbHelper mDbHelper;
-    private static SQLiteDatabase db;
-    private static ContentValues values;
+    private DbHelper mDbHelper;
 
-    public static void updateDb(Context context,String key_title, String title, String table_name, String [] selectionArgs) {
-        db = mDbHelper.getReadableDatabase();
+    public Database(Context context) {
+        mDbHelper = new DbHelper(context);
+    }
+
+    public void updateDb(Context context, String key_title, String title, String table_name, String[] selectionArgs) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        ContentValues values = new ContentValues();
         values.put(key_title, title);
         String selection = "id" + " LIKE ?";
         db.update(
@@ -24,8 +28,9 @@ public class Database {
         db.close();
     }
 
-    public static void createRow(Context context, String column_id, int id, String column_title, String title, String table_name) {
-        db = mDbHelper.getWritableDatabase();
+    public void createRow(Context context, String column_id, int id, String column_title, String title, String table_name) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
         values.put(column_id, id);
         values.put(column_title, title);
         db.insert(
@@ -35,8 +40,8 @@ public class Database {
         db.close();
     }
 
-    public static Cursor readDb(Context context, String _id, String column_title, String table_name, String [] selectionArgs) {
-        db = mDbHelper.getReadableDatabase();
+    public Cursor readDb(Context context, String _id, String column_title, String table_name, String[] selectionArgs) {
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
         String[] projection = {
                 _id,
                 column_title,
@@ -52,7 +57,7 @@ public class Database {
                 null
         );
         c.moveToFirst();
+        Log.i(TAG,"Cursor: " + c);
         return c;
     }
-
 }

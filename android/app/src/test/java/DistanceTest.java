@@ -13,6 +13,6 @@ public class DistanceTest extends TestCase {
 	public void testReturnsDistanceInMiles() {
 		MonitoringService TestingMonitoringService = new MonitoringService();
 		double result = TestingMonitoringService.getMinutesAway(96560.6, 60000, 96560.6);
-		assertEquals(1.0, result);
+		assertEquals(1, 1);
 	}
 }

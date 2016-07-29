@@ -22,9 +22,15 @@ import java.util.List;
 public class MainActivity extends ReactActivity {
     private static final String TAG = "TestingActivity";
     public static final String MY_FIRST_INTENT = "com.caltrainapp.MY_FIRST_INTENT";
-    private static Uri uri;
     final IntentFilter filter = new IntentFilter(MainActivity.MY_FIRST_INTENT);
-    private static int minuteAlert = 1;
+
+    private Uri ringtoneUri;
+    private int minuteAlert = 1;
+    Database db;
+
+    public MainActivity() {
+        db = new Database(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,24 +62,24 @@ public class MainActivity extends ReactActivity {
         this.startActivity(intent);
     }
 
-    Database db = new Database();
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (resultCode == RESULT_OK) {
-            uri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
-            if (uri != null) {
+            ringtoneUri = intent.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+            Log.i(TAG, "ringtoneUri: " + ringtoneUri);
+            if (ringtoneUri != null) {
                 String[] selectionArgs = {"1"};
                 Cursor c = db.readDb(this, "id", "tone_uri", "station_alert_tone", selectionArgs);
-                String ringTonePath = uri.toString();
+                String ringTonePath = ringtoneUri.toString();
                 RingtoneManager.setActualDefaultRingtoneUri(
                         this,
                         RingtoneManager.TYPE_RINGTONE,
-                        uri);
+                        ringtoneUri);
                 if (c.getCount() >= 1) {
-                    Database.updateDb(this, "tone_uri", ringTonePath, "station_alert_tone", selectionArgs);
+                    db.updateDb(this, "tone_uri", ringTonePath, "station_alert_tone", selectionArgs);
                 } else {
-                    Database.createRow(this, "id", 1, "tone_uri", ringTonePath, "station_alert_tone");
+                    db.createRow(this, "id", 1, "tone_uri", ringTonePath, "station_alert_tone");
                 }
 
             }
@@ -86,8 +92,8 @@ public class MainActivity extends ReactActivity {
         ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false);
         ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
         ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
-       if(uri != null) {
-           ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri);
+       if(ringtoneUri != null) {
+           ringtoneIntent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, ringtoneUri);
        }
         startActivityForResult(ringtoneIntent, 999);
     }

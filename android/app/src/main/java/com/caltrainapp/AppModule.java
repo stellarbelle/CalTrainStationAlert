@@ -17,9 +17,8 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class AppModule extends ReactContextBaseJavaModule {
     private static final String TAG = "AppModule";
-    private MainActivity activity;
     private Intent mServiceIntent;
-    public static int minAlert;
+    public int minAlert;
 
     public AppModule(final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -66,7 +65,7 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setAudio(boolean value) {
-        activity = (MainActivity)getCurrentActivity();
+        MainActivity activity = (MainActivity)getCurrentActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("audioValue", value);
         activity.startService(mServiceIntent);
@@ -74,7 +73,7 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setVibrate(boolean value) {
-        activity = (MainActivity)getCurrentActivity();
+        MainActivity activity = (MainActivity)getCurrentActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("vibrateValue", value);
         activity.startService(mServiceIntent);
@@ -82,7 +81,7 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setStation(String stationLat, String stationLong) {
-        activity = (MainActivity)getCurrentActivity();
+        MainActivity activity = (MainActivity)getCurrentActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
         mServiceIntent.putExtra("stationLong", stationLong);
@@ -92,7 +91,7 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setMinuteAlert(int minuteAlert) {
-        activity = (MainActivity)getCurrentActivity();
+        MainActivity activity = (MainActivity)getCurrentActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         minAlert = minuteAlert;
         mServiceIntent.putExtra("minuteAlert", minuteAlert);
@@ -102,6 +101,7 @@ public class AppModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void setTone() {
+        MainActivity activity = (MainActivity)getCurrentActivity();
         activity.tone();
     }
 }

@@ -1,5 +1,6 @@
 package com.caltrainapp;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -63,25 +64,36 @@ public class AppModule extends ReactContextBaseJavaModule {
         return "AppAndroid";
     }
 
+    private MainActivity getMainActivity() throws Exception {
+        Activity activity = this.getCurrentActivity();
+        if (activity == null) {
+            throw new Exception("There is no current activity");
+        }
+        if (!(activity instanceof MainActivity)) {
+            throw new Exception("Unexpected activity type");
+        }
+        return (MainActivity)activity;
+    }
+
     @ReactMethod
-    public void setAudio(boolean value) {
-        MainActivity activity = (MainActivity)getCurrentActivity();
+    public void setAudio(boolean value) throws Exception {
+        MainActivity activity = getMainActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("audioValue", value);
         activity.startService(mServiceIntent);
     }
 
     @ReactMethod
-    public void setVibrate(boolean value) {
-        MainActivity activity = (MainActivity)getCurrentActivity();
+    public void setVibrate(boolean value) throws Exception {
+        MainActivity activity = this.getMainActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("vibrateValue", value);
         activity.startService(mServiceIntent);
     }
 
     @ReactMethod
-    public void setStation(String stationLat, String stationLong) {
-        MainActivity activity = (MainActivity)getCurrentActivity();
+    public void setStation(String stationLat, String stationLong) throws Exception {
+        MainActivity activity = this.getMainActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         mServiceIntent.putExtra("stationLat", stationLat);
         mServiceIntent.putExtra("stationLong", stationLong);
@@ -90,8 +102,8 @@ public class AppModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setMinuteAlert(int minuteAlert) {
-        MainActivity activity = (MainActivity)getCurrentActivity();
+    public void setMinuteAlert(int minuteAlert) throws Exception {
+        MainActivity activity = getMainActivity();
         mServiceIntent = new Intent(activity, MonitoringService.class);
         minAlert = minuteAlert;
         mServiceIntent.putExtra("minuteAlert", minuteAlert);
@@ -100,8 +112,8 @@ public class AppModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setTone() {
-        MainActivity activity = (MainActivity)getCurrentActivity();
+    public void setTone() throws Exception {
+        MainActivity activity = getMainActivity();
         activity.tone();
     }
 }
